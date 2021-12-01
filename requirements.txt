@@ -1,0 +1,2 @@
+google_currency==1.0.9
+ipython==7.16.2

@@ -1,0 +1,23 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ currency_1.upper }} ATH = {{ all_time_high_rate }} {{ currency_2.upper }}</title>
+</head>
+<body>
+
+<div style="width: 100%; align-content: center;">
+    <div style="text-align: center;">
+        <h2>
+            {{ currency_1.upper }} x {{ currency_2.upper }}
+        </h2>
+        <h3>
+            {% trans "Mevcut kur" %} = {{ exchange_rate }}<br/>
+            {% trans "Tüm Zamanların En Yükseği" %} = {{ all_time_high_rate }}
+        </h3>
+    </div>
+</div>
+
+</body>
+</html>
