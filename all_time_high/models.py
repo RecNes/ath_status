@@ -9,7 +9,6 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class AllTimeHighRate(models.Model):
-
     currency_1 = models.CharField(
         verbose_name=_("Para Birimi 1"),
         max_length=3,
@@ -53,3 +52,14 @@ class AllTimeHighRate(models.Model):
             MinValueValidator(Decimal("0.0")),
         ]
     )
+
+
+class Post(models.Model):
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return f"/posts/{self.id}"

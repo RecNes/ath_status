@@ -1,2 +1,4 @@
 google_currency==1.0.9
 ipython==7.16.2
+telegram_notifier==0.3
+tweepy==4.4.0
