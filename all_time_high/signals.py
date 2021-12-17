@@ -8,7 +8,7 @@ from all_time_high.models import AllTimeHighRate
 def create_message(instance):
     return f'''Yeni ATH oluştu:
  
-"{instance.currency_1}" x "{instance.currency_2}" : {instance.exchange_rate}'''
+"{instance.currency_1.upper()}" x "{instance.currency_2.upper()}" : {instance.exchange_rate}'''
 
 
 @receiver(post_save, sender=AllTimeHighRate, dispatch_uid="send_ath_to_twitter")
