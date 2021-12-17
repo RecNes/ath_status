@@ -9,12 +9,15 @@
 
 <div style="width: 100%; align-content: center;">
     <div style="text-align: center;">
+        <br />
+        <br />
+        <br />
         <h2>
-            {{ currency_1.upper }} x {{ currency_2.upper }}
+            {{ currency_1.upper }} &lt;&gt; {{ currency_2.upper }}
         </h2>
         <h3>
-            {% trans "Mevcut kur" %} = {{ exchange_rate }}<br/>
-            {% trans "Tüm Zamanların En Yükseği" %} = {{ all_time_high_rate }}
+            {% trans "Mevcut kur" %} = {{ exchange_rate }} ₺<br/>
+            {% trans "Tüm Zamanların En Yükseği" %} = {{ all_time_high_rate }} ₺
         </h3>
     </div>
 </div>

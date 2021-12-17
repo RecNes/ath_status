@@ -2,5 +2,6 @@ django==3.2.10
 google_currency==1.0.9
 gunicorn==20.1.0
 ipython==7.16.2
+requests==2.26.0
 telegram_notifier==0.3
 tweepy==4.4.0
