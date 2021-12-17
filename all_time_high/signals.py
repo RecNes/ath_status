@@ -14,8 +14,8 @@ $ 1.00 = {instance.exchange_rate} ₺
 ◦ Bu mesaj otomatik olarak oluşturulmuştur.'''
 
 
-@receiver(post_save, sender=AllTimeHighRate, dispatch_uid="send_ath_to_twitter")
-def send_ath_to_twitter(sender, instance, raw, *args, **kwargs):
+@receiver(post_save, sender=AllTimeHighRate, dispatch_uid="post_ath_message")
+def post_ath_message(sender, instance, raw, *args, **kwargs):
     message = create_message(instance)
     to_telegram(message)
     to_twitter(message)
