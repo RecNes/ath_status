@@ -6,9 +6,12 @@ from all_time_high.models import AllTimeHighRate
 
 
 def create_message(instance):
-    return f'''Yeni ATH oluştu:
+    return f'''Yeni ATH:
  
-"{instance.currency_1.upper()}" x "{instance.currency_2.upper()}" : {instance.exchange_rate}'''
+          $ 1.00 = {instance.exchange_rate} ₺
+
+ATH: Tüm zamanların en yükseği
+Bu mesaj otomatik olarak oluşturulmuştur.'''
 
 
 @receiver(post_save, sender=AllTimeHighRate, dispatch_uid="send_ath_to_twitter")
