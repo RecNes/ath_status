@@ -17,7 +17,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         response = json.loads(convert("usd", "try", 1))
-
         currency, created = AllTimeHighRate.objects.get_or_create(
             currency_1=response["from"].lower(),
             currency_2=response["to"].lower(),
@@ -26,10 +25,10 @@ class Command(BaseCommand):
         currency.exchange_rate = Decimal(response["amount"]).quantize(Decimal("0.00"))
         if currency.all_time_high_rate is None or currency.exchange_rate > currency.all_time_high_rate:
             currency.all_time_high_rate = currency.exchange_rate
-        currency.save()
+            currency.save()
 
         self.stdout.write(
             self.style.SUCCESS(
-                '"%s" x "%s" : %s' % (currency.currency_1, currency.currency_2, currency.exchange_rate)
+                f'"{currency.currency_1}" x "{currency.currency_2}" : {currency.exchange_rate}'
             )
         )
