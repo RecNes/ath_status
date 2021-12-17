@@ -1,5 +1,6 @@
 import tweepy
 from django.conf import settings
+from telegram_notifier import TelegramNotifier
 
 
 def to_twitter(message):
@@ -23,3 +24,16 @@ def to_twitter(message):
     except tweepy.TweepError as error:
         if error.api_code == 187:
             print('duplicate message')
+
+
+def to_telegram(message):
+    """
+    Send message to telegram via bot
+    :param message:
+    :return:
+    """
+    token = settings.TELEGRAM_BOT
+    chat_id = settings.TELEGRAM_CHAT_ID
+
+    notifier = TelegramNotifier(token, chat_id=chat_id, parse_mode="HTML")
+    notifier.send(message)

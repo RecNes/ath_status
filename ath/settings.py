@@ -141,6 +141,7 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TELEGRAM_BOT = env_vars["TELEGRAM_BOT"]
+TELEGRAM_CHAT_ID = env_vars["TELEGRAM_CHAT_ID"]
 
 TWITTER_API_KEY = env_vars["TWITTER_API_KEY"]
 TWITTER_API_SEC = env_vars["TWITTER_API_SEC"]
