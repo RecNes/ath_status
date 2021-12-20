@@ -33,7 +33,11 @@ def to_telegram(message):
     :return:
     """
     token = settings.TELEGRAM_BOT
-    chat_id = settings.TELEGRAM_CHAT_ID
+    # chat_id = settings.TELEGRAM_CHAT_ID
+    chat_id1 = settings.TELEGRAM_CHAT_ID1
+    chat_id2 = settings.TELEGRAM_CHAT_ID2
 
-    notifier = TelegramNotifier(token, chat_id=chat_id, parse_mode="HTML")
-    notifier.send(message)
+    chat_list = [chat_id1, chat_id2]
+    for chat_id in chat_list:
+        notifier = TelegramNotifier(token, chat_id=chat_id, parse_mode="HTML")
+        notifier.send(message)
