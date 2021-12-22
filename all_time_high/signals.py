@@ -10,7 +10,7 @@ from all_time_high.models import AllTimeHighRate
 def create_message(instance):
     return f'''⁃ Yeni ATH:
  
-$ 1.00 = {instance.exchange_rate} ₺ 
+$ 1.00 = {instance.all_time_high_rate} ₺ 
 
 ◦ ATH: Tüm zamanların en yükseği
 ◦ Bu mesaj otomatik olarak oluşturulmuştur.'''
