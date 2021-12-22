@@ -52,3 +52,8 @@ class AllTimeHighRate(models.Model):
             MinValueValidator(Decimal("0.0")),
         ]
     )
+
+    notify = models.BooleanField(
+        verbose_name=_("Bildir"),
+        default=False
+    )

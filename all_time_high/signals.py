@@ -29,6 +29,11 @@ def post_ath_message(sender, instance, raw, *args, **kwargs):
     if not is_half_hour():
         return
 
+    if not instance.notify:
+        return
+
     message = create_message(instance)
     to_telegram(message)
     # to_twitter(message)
+
+    instance.notify = False
