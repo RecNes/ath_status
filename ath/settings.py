@@ -46,7 +46,7 @@ SECRET_KEY = env_vars["DJANGO_SECRET_KEY"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [env_vars["ALLOWED_HOST"], "127.0.0.1"]
+ALLOWED_HOSTS = [env_vars["ALLOWED_HOST"], ]
 
 # Application definition
 
@@ -141,6 +141,8 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+OPEN_EXCHANGE_RATES = env_vars["OPEN_EXCHANGE_RATES"]
 
 TELEGRAM_BOT = env_vars["TELEGRAM_BOT"]
 
