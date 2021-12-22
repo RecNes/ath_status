@@ -31,4 +31,4 @@ def post_ath_message(sender, instance, raw, *args, **kwargs):
 
     message = create_message(instance)
     to_telegram(message)
-    to_twitter(message)
+    # to_twitter(message)
