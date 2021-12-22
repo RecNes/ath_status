@@ -44,7 +44,7 @@ DJANGO_ADMIN_URI = env_vars["DJANGO_ADMIN_URI"]
 SECRET_KEY = env_vars["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [env_vars["ALLOWED_HOST"], "127.0.0.1"]
 
