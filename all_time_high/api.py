@@ -1,3 +1,4 @@
+import requests
 import tweepy
 from django.conf import settings
 from telegram_notifier import TelegramNotifier
@@ -26,18 +27,46 @@ def to_twitter(message):
             print('duplicate message')
 
 
+def get_telegram_chat_ids():
+    """
+    Get telegram chat ids that the bot is in.
+    :return:
+    """
+    url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT}/getUpdates"
+    response = requests.get(url)
+    content = response.json()
+    result = list()
+    if not response.status_code >= 300:
+        if content["ok"]:
+            result = content["result"]
+
+    chat_ids = list()
+    for item in result:
+        if "message" not in item.keys():
+            continue
+
+        message = item["message"]
+        if "chat" not in message.keys():
+            continue
+
+        chat = message["chat"]
+        if "id" not in chat:
+            continue
+
+        chat_id = chat["id"]
+        if chat_id not in chat_ids:
+            chat_ids.append(chat_id)
+
+    return chat_ids
+
+
 def to_telegram(message):
     """
     Send message to telegram via bot
     :param message:
     :return:
     """
-    token = settings.TELEGRAM_BOT
-    # chat_id = settings.TELEGRAM_CHAT_ID
-    chat_id1 = settings.TELEGRAM_CHAT_ID1
-    chat_id2 = settings.TELEGRAM_CHAT_ID2
-
-    chat_list = [chat_id1, chat_id2]
-    for chat_id in chat_list:
-        notifier = TelegramNotifier(token, chat_id=chat_id, parse_mode="HTML")
+    chat_ids = get_telegram_chat_ids()
+    for chat_id in chat_ids:
+        notifier = TelegramNotifier(settings.TELEGRAM_BOT, chat_id=chat_id, parse_mode="HTML")
         notifier.send(message)
