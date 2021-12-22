@@ -25,7 +25,7 @@ class Command(BaseCommand):
         currency.exchange_rate = Decimal(response["amount"]).quantize(Decimal("0.00"))
         if currency.all_time_high_rate is None or currency.exchange_rate > currency.all_time_high_rate:
             currency.all_time_high_rate = currency.exchange_rate
-            currency.save()
+        currency.save()
 
         self.stdout.write(
             self.style.SUCCESS(
