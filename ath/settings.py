@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'dj_currencies',
     'all_time_high.apps.AllTimeHighConfig',
 ]
 
@@ -143,6 +144,12 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 OPEN_EXCHANGE_RATES = env_vars["OPEN_EXCHANGE_RATES"]
+# DJANGO_CURRENCIES = {
+#     'DEFAULT_BACKEND': 'djmoney_rates.backends.OpenExchangeBackend',
+#     'OPENEXCHANGE_APP_ID': OPEN_EXCHANGE_RATES,
+#     'BASE_CURRENCIES': ['TRY'],
+#     'MAX_CACHE_DAYS': 1
+# }
 
 TELEGRAM_BOT = env_vars["TELEGRAM_BOT"]
 

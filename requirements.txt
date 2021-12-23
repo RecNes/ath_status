@@ -1,5 +1,5 @@
 django==3.2.10
-dj-currencies==1.0.1
+# dj-currencies==1.0.1
 google_currency==1.0.9
 gunicorn==20.1.0
 ipython==7.16.2
