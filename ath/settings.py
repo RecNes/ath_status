@@ -144,6 +144,7 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 OPEN_EXCHANGE_RATES = env_vars["OPEN_EXCHANGE_RATES"]
+ABSTRACTAPI_API_KEY = env_vars["ABSTRACTAPI_API_KEY"]
 
 TELEGRAM_BOT = env_vars["TELEGRAM_BOT"]
 

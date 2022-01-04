@@ -98,9 +98,31 @@ def from_open_exchange_rates(from_currency="usd", to_currency="try", currency_am
     """
     response = None
     if timezone.now().minute == 0:
-        request_data = {"app_id": settings.OPEN_EXCHANGE_RATES}
+        payload = {"app_id": settings.OPEN_EXCHANGE_RATES}
         request_url = "http://openexchangerates.org/api/latest.json"
-        json_response = requests.get(request_url, params=request_data)
+        json_response = requests.get(request_url, params=payload)
         response_content = json_response.json()
         response = response_content['rates'][to_currency.upper()]
+    return response
+
+
+def from_abstractapi_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
+    """
+    Fetches hourly exchange rate from Open Exchange Rates
+    :param from_currency:
+    :param to_currency:
+    :param currency_amount:
+    :return:
+    """
+    response = None
+    if timezone.now().minute == 0:
+        url = "https://exchange-rates.abstractapi.com/v1/live/"
+        payload = {
+            "api_key": settings.ABSTRACTAPI_API_KEY,
+            "base": from_currency.upper(),
+            "target": to_currency.upper()
+        }
+        json_response = requests.get(url, params=payload)
+        content = json_response.json()
+        response = content["exchange_rates"][to_currency.upper()]
     return response
