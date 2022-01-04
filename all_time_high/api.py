@@ -85,8 +85,8 @@ def from_google_exchange_rates(from_currency="usd", to_currency="try", currency_
     :param currency_amount:
     :return:
     """
-    response = json.loads(convert(from_currency, to_currency, currency_amount))
-    return response
+    rate = json.loads(convert(from_currency, to_currency, currency_amount))
+    return rate
 
 
 def from_open_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
@@ -99,15 +99,15 @@ def from_open_exchange_rates(from_currency="usd", to_currency="try", currency_am
     :param currency_amount:
     :return:
     """
-    response = None
+    rate = None
     now = timezone.now()
     if now.hour == 12 and now.minute == 0:
         payload = {"app_id": settings.OPEN_EXCHANGE_RATES}
         request_url = "http://openexchangerates.org/api/latest.json"
         json_response = requests.get(request_url, params=payload)
         response_content = json_response.json()
-        response = response_content['rates'][to_currency.upper()]
-    return response
+        rate = response_content['rates'][to_currency.upper()]
+    return rate
 
 
 def from_abstractapi_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
@@ -120,7 +120,7 @@ def from_abstractapi_exchange_rates(from_currency="usd", to_currency="try", curr
     :param currency_amount:
     :return:
     """
-    response = None
+    rate = None
     now = timezone.now()
     if now.day % 2 == 0 and now.hour == 12 and now.minute == 0:
         url = "https://exchange-rates.abstractapi.com/v1/live/"
@@ -131,5 +131,5 @@ def from_abstractapi_exchange_rates(from_currency="usd", to_currency="try", curr
         }
         json_response = requests.get(url, params=payload)
         content = json_response.json()
-        response = content["exchange_rates"][to_currency.upper()]
-    return response
+        rate = content["exchange_rates"][to_currency.upper()]
+    return rate
