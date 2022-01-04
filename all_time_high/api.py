@@ -78,7 +78,8 @@ def to_telegram(message):
 
 def from_google_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
     """
-    Fetches exchange rate from Google
+    Fetches exchange rate from Google in any time
+
     :param from_currency:
     :param to_currency:
     :param currency_amount:
@@ -90,14 +91,17 @@ def from_google_exchange_rates(from_currency="usd", to_currency="try", currency_
 
 def from_open_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
     """
-    Fetches hourly exchange rate from Open Exchange Rates
+    Fetches exchange rate from Open Exchange Rates in daily basis
+    https://docs.openexchangerates.org/docs/
+
     :param from_currency:
     :param to_currency:
     :param currency_amount:
     :return:
     """
     response = None
-    if timezone.now().minute == 0:
+    now = timezone.now()
+    if now.hour == 12 and now.minute == 0:
         payload = {"app_id": settings.OPEN_EXCHANGE_RATES}
         request_url = "http://openexchangerates.org/api/latest.json"
         json_response = requests.get(request_url, params=payload)
@@ -108,14 +112,17 @@ def from_open_exchange_rates(from_currency="usd", to_currency="try", currency_am
 
 def from_abstractapi_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
     """
-    Fetches hourly exchange rate from AbstractAPI Exchange Rates
+    Fetches exchange rate from AbstractAPI Exchange Rates in 2 days basis
+    https://app.abstractapi.com/api/exchange-rates/documentation
+
     :param from_currency:
     :param to_currency:
     :param currency_amount:
     :return:
     """
     response = None
-    if timezone.now().minute == 0:
+    now = timezone.now()
+    if now.day % 2 == 0 and now.hour == 12 and now.minute == 0:
         url = "https://exchange-rates.abstractapi.com/v1/live/"
         payload = {
             "api_key": settings.ABSTRACTAPI_API_KEY,
