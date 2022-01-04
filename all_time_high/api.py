@@ -108,7 +108,7 @@ def from_open_exchange_rates(from_currency="usd", to_currency="try", currency_am
 
 def from_abstractapi_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
     """
-    Fetches hourly exchange rate from Open Exchange Rates
+    Fetches hourly exchange rate from AbstractAPI Exchange Rates
     :param from_currency:
     :param to_currency:
     :param currency_amount:
