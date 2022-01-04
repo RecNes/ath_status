@@ -1,6 +1,10 @@
+import json
+
 import requests
 import tweepy
 from django.conf import settings
+from django.utils import timezone
+from google_currency import convert
 from telegram_notifier import TelegramNotifier
 
 
@@ -70,3 +74,33 @@ def to_telegram(message):
     for chat_id in chat_ids:
         notifier = TelegramNotifier(settings.TELEGRAM_BOT, chat_id=chat_id, parse_mode="HTML")
         notifier.send(message)
+
+
+def from_google_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
+    """
+    Fetches exchange rate from Google
+    :param from_currency:
+    :param to_currency:
+    :param currency_amount:
+    :return:
+    """
+    response = json.loads(convert(from_currency, to_currency, currency_amount))
+    return response
+
+
+def from_open_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
+    """
+    Fetches hourly exchange rate from Open Exchange Rates
+    :param from_currency:
+    :param to_currency:
+    :param currency_amount:
+    :return:
+    """
+    response = None
+    if timezone.now().minute == 0:
+        request_data = {"app_id": settings.OPEN_EXCHANGE_RATES}
+        request_url = "http://openexchangerates.org/api/latest.json"
+        json_response = requests.get(request_url, params=request_data)
+        response_content = json_response.json()
+        response = response_content['rates'][to_currency.upper()]
+    return response
