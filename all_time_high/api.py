@@ -87,7 +87,7 @@ def from_google_exchange_rates(from_currency="usd", to_currency="try", currency_
     :return:
     """
     rate = json.loads(convert(from_currency, to_currency, currency_amount))
-    return rate
+    return rate["amount"]
 
 
 def from_open_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
