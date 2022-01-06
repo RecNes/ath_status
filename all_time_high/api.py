@@ -26,9 +26,10 @@ def to_twitter(message):
 
     try:
         api.update_status(message)
-    except tweepy.TweepError as error:
-        if error.api_code == 187:
-            print('duplicate message')
+    except tweepy.HTTPException as error:
+        for api_code in error.api_codes:
+            if api_code == 187:
+                print('duplicate message')
 
 
 def get_telegram_chat_ids():
