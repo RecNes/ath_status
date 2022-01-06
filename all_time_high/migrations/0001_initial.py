@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -16,10 +15,32 @@ class Migration(migrations.Migration):
             name='AllTimeHighRate',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('currency_1', models.CharField(max_length=3, validators=[django.core.validators.MaxLengthValidator(3), django.core.validators.MinLengthValidator(3), django.core.validators.ProhibitNullCharactersValidator()], verbose_name='Para Birimi 1')),
-                ('currency_2', models.CharField(max_length=3, validators=[django.core.validators.MaxLengthValidator(3), django.core.validators.MinLengthValidator(3), django.core.validators.ProhibitNullCharactersValidator()], verbose_name='Para Birimi 2')),
-                ('excahnge_rate', models.CharField(max_length=3, validators=[django.core.validators.MaxLengthValidator(3), django.core.validators.MinLengthValidator(3), django.core.validators.ProhibitNullCharactersValidator()], verbose_name='Kur')),
-                ('all_time_high_rate', models.CharField(max_length=3, validators=[django.core.validators.MaxLengthValidator(3), django.core.validators.MinLengthValidator(3), django.core.validators.ProhibitNullCharactersValidator()], verbose_name='Tüm Zamanların En Yüksek Kuru')),
+                ('currency_1', models.CharField(
+                    max_length=3,
+                    validators=[django.core.validators.MaxLengthValidator(3),
+                                django.core.validators.MinLengthValidator(3),
+                                django.core.validators.ProhibitNullCharactersValidator()],
+                    verbose_name='Para Birimi 1')),
+                ('currency_2', models.CharField(
+                    max_length=3,
+                    validators=[django.core.validators.MaxLengthValidator(3),
+                                django.core.validators.MinLengthValidator(3),
+                                django.core.validators.ProhibitNullCharactersValidator()],
+                    verbose_name='Para Birimi 2')),
+                ('excahnge_rate', models.CharField(
+                    max_length=3,
+                    validators=[
+                        django.core.validators.MaxLengthValidator(3),
+                        django.core.validators.MinLengthValidator(3),
+                        django.core.validators.ProhibitNullCharactersValidator()],
+                    verbose_name='Kur')),
+                ('all_time_high_rate', models.CharField(
+                    max_length=3,
+                    validators=[
+                        django.core.validators.MaxLengthValidator(3),
+                        django.core.validators.MinLengthValidator(3),
+                        django.core.validators.ProhibitNullCharactersValidator()],
+                    verbose_name='Tüm Zamanların En Yüksek Kuru')),
             ],
         ),
     ]

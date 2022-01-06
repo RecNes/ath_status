@@ -7,7 +7,8 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
-def migrate_data_from_model_to_be_deleted(apps, schema_editor):
+# noinspection PyPep8Naming
+def migrate_data_from_model_to_be_deleted(apps):
     AllTimeHighRate = apps.get_model("all_time_high", "AllTimeHighRate")
     AllTimeHigh = apps.get_model("all_time_high", "AllTimeHigh")
     ExchangeCurrency = apps.get_model("all_time_high", "ExchangeCurrency")
@@ -57,14 +58,18 @@ class Migration(migrations.Migration):
             name='ExchangeCurrency',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('base', models.CharField(max_length=3, validators=[django.core.validators.MaxLengthValidator(3),
-                                                                    django.core.validators.MinLengthValidator(3),
-                                                                    django.core.validators.ProhibitNullCharactersValidator()],
-                                          verbose_name='Para Birimi 1')),
-                ('target', models.CharField(max_length=3, validators=[django.core.validators.MaxLengthValidator(3),
-                                                                      django.core.validators.MinLengthValidator(3),
-                                                                      django.core.validators.ProhibitNullCharactersValidator()],
-                                            verbose_name='Para Birimi 2')),
+                ('base', models.CharField(
+                    max_length=3,
+                    validators=[django.core.validators.MaxLengthValidator(3),
+                                django.core.validators.MinLengthValidator(3),
+                                django.core.validators.ProhibitNullCharactersValidator()],
+                    verbose_name='Para Birimi 1')),
+                ('target', models.CharField(
+                    max_length=3,
+                    validators=[django.core.validators.MaxLengthValidator(3),
+                                django.core.validators.MinLengthValidator(3),
+                                django.core.validators.ProhibitNullCharactersValidator()],
+                    verbose_name='Para Birimi 2')),
             ],
         ),
         migrations.RemoveField(
