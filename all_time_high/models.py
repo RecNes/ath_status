@@ -69,7 +69,7 @@ class ExchangeRate(models.Model):
     )
 
     def __str__(self):
-        return _("Güncel Kur:") + f"{self.currency} = {self.exchange_rate}"
+        return _("Güncel Kur:") + f" {self.exchange_rate}"
 
     class Meta:
         constraints = [
