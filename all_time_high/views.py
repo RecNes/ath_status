@@ -6,7 +6,7 @@ from all_time_high.api import from_google_exchange_rates, from_open_exchange_rat
 from all_time_high.models import ExchangeCurrency, AllTimeHigh, OneUnitDropped, ExchangeRate
 
 
-def get_higher_rate(latest_rates) -> float:
+def get_higher_rate(latest_rates) -> Decimal:
     """
     return highest rate
     :param latest_rates:
@@ -17,10 +17,10 @@ def get_higher_rate(latest_rates) -> float:
     if len(values):
         values.sort(reverse=True)
         rate = values[0]
-    return rate
+    return Decimal(rate)
 
 
-def get_lowest_rate(latest_rates) -> float:
+def get_lowest_rate(latest_rates) -> Decimal:
     """
     return lowest rate
     :param latest_rates:
@@ -31,7 +31,7 @@ def get_lowest_rate(latest_rates) -> float:
     if len(values):
         values.sort()
         rate = values[0]
-    return rate
+    return Decimal(rate)
 
 
 def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1) -> object:
@@ -61,7 +61,7 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
         base=from_currency.lower(),
         target=to_currency.lower(),
     )
-    current_exchange_rate = Decimal(highest_rate).quantize(Decimal("0.00"))
+    current_exchange_rate = highest_rate.quantize(Decimal("0.00"))
     exchange_rate_obj = ExchangeRate(
         exchange_rate=current_exchange_rate
     )
@@ -89,7 +89,7 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
         one_unit_drop = OneUnitDropped.objects.get_or_create(
             currency=currency
         )
-        one_unit_drop.exchange_rate = lowest_rate
+        one_unit_drop.exchange_rate = lowest_rate.quantize(Decimal("0.00"))
         one_unit_drop.notify = True
         one_unit_drop.save()
 
@@ -98,9 +98,7 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
 
 def one_page_view(request):
     template = "one_page_template.html"
-    content = dict()
-    rates = AllTimeHighRate.objects.all()
-    for rate in rates:
-        content = rate.__dict__
-
+    content = {
+        "exchange_currencies": ExchangeCurrency.objects.all()
+    }
     return render(request, template, context=content)

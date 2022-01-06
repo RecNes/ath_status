@@ -3,32 +3,110 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>{{ currency_1.upper }} ATH = {{ all_time_high_rate }} {{ currency_2.upper }}</title>
+    <title>All Times High Rates</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
+
+        body {
+            background-color: #E2E4FF;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            background-color: #E2E4FF;
+            display: flex;
+            justify-content: center;
+        }
+
+        .centered {
+            width: 1280px;
+            height: 720px;
+            background-color: #7780F1;
+            border-radius: 30px;
+            padding: 10px;
+        }
+        .inner-left {
+            background-color: white;
+            width: 70%;
+            height: 100%;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            float: left;
+        }
+        .inner-right {
+            background-color: #7780F1;
+            width: 29%;
+            height: 100%;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            float: right;
+        }
+        .box_left {
+            margin: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .box_right {
+            width: 100%;
+        }
+        .box_right h2 {
+            color: aliceblue;
+            text-align: center;
+            background-color: #9099FF;
+            height: 100px;
+            border-radius: 25px;
+            margin-top: 10px ;
+        }
+    </style>
 </head>
 <body>
 
-<div style="width: 100%; align-content: center;">
-    <div style="text-align: center;">
-        <br />
-        <br />
-        <br />
-        <h2>
-            {{ currency_1.upper }} &lt;&gt; {{ currency_2.upper }}
-        </h2>
-        <h3>
-            {% trans "Mevcut kur" %} = {{ exchange_rate }} ₺
-            <br/>
-            <br/>
-            {% trans "Tüm Zamanların En Yükseği" %} = {{ all_time_high_rate }} ₺
-        </h3>
+<div class="container">
+    <div class="centered">
+        <div class="inner-left">
+            <div class="box_left">
+
+            <table style="border: black 1px solid; align-self: center">
+                <thead>
+                <tr>
+                    <td style="border: black 1px solid;">{% trans "CURRENCY" %}</td>
+                    <td style="border: black 1px solid;">{% trans "Current Rate" %}</td>
+                    <td style="border: black 1px solid;">{% trans "ATH Rate" %}</td>
+                    <td style="border: black 1px solid;">{% trans "One Unit Dropped" %}</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for exchange_currency in exchange_currencies %}
+                    <tr>
+                        <td style="border: black 1px solid;">{{ exchange_currency }}</td>
+                        <td style="border: black 1px solid;">{{ exchange_currency.exchangerate_set.last.exchange_rate }}</td>
+                        <td style="border: black 1px solid;">{{ exchange_currency.alltimehigh.exchange_rate }}</td>
+                        <td style="border: black 1px solid;">{{ exchange_currency.oneunitdrop.exchange_rate }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+        <div class="inner-right">
+            <div class="box_right">
+                <h2>
+                    <br>
+                    ALL TIMES HIGH RATES
+                </h2>
+                <ul>
+                    <li>
+                        <a href="https://github.com/RecNes/ath_status">GitHub</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-</div>
-<div>
-    <ul>
-        <li>
-            <a href="https://github.com/RecNes/ath_status">GitHub</a>
-        </li>
-    </ul>
 </div>
 </body>
 </html>
