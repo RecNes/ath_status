@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from all_time_high.api import to_twitter, to_telegram
-from all_time_high.models import AllTimeHighRate
+from all_time_high.models import ExchangeRate, AllTimeHigh, OneUnitDropped
 
 
 def create_message(instance):
@@ -23,7 +23,7 @@ def is_half_hour():
     return False
 
 
-@receiver(post_save, sender=AllTimeHighRate, dispatch_uid="post_ath_message")
+# @receiver(post_save, sender=AllTimeHigh, dispatch_uid="post_ath_message")
 def post_ath_message(sender, instance, raw, *args, **kwargs):
 
     if not is_half_hour():
