@@ -11,9 +11,9 @@ trap 'rm -r $LOCKDIR; exit' ERR EXIT
 
 if mkdir $LOCKDIR
 then
-  echo "Lock Acquired"
+  echo >&2 "Lock Acquired"
 else
-  echo "Can not Acquire Lock."
+  echo >&2 "Can not Acquire Lock."
   exit 1
 fi
 
@@ -21,10 +21,10 @@ git fetch --all
 GIT_STATUS=$(git log HEAD..origin/main --oneline)
 if [ -z "$GIT_STATUS" ]
 then
-  echo "No Change!"
+  echo >&2 "No Change!"
   exit 0
 else
-  echo "Deploying changes..."
+  echo >&2 "Deploying changes..."
 fi
 
 git checkout main
@@ -34,7 +34,7 @@ source env/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 python manage.py migrate
-echo "Restarting service."
+echo >&2 "Restarting service."
 systemctl restart ath_status.service
 
-echo "Done!"
+echo >&2 "Done!"
