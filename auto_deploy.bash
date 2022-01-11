@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 LINK=$(readlink -f "$0")
 BASE_DIR=$(dirname "$LINK")
