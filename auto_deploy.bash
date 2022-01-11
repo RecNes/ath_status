@@ -3,40 +3,31 @@
 LINK=$(readlink -f "$0")
 BASE_DIR=$(dirname "$LINK")
 cd "$BASE_DIR" || echo "Unable to change directory to $BASE_DIR" && exit 1
+echo "$BASE_DIR"
 
-lock() {
-  LOCKDIR=/tmp/deployment.lock
+LOCKDIR=/tmp/deployment.lock
 
-  trap 'rm -r $LOCKDIR' SIGINT
-  trap 'rm -r $LOCKDIR; exit' ERR EXIT
+trap 'rm -r $LOCKDIR' SIGINT
+trap 'rm -r $LOCKDIR; exit' ERR EXIT
 
-  if mkdir $LOCKDIR; then
-    echo "Lock Acquired"
-  else
-    echo "Can not Acquire Lock."
-    exit 1
-  fi
-}
+if mkdir $LOCKDIR; then
+  echo "Lock Acquired"
+else
+  echo "Can not Acquire Lock."
+  exit 1
+fi
 
-has_change() {
-  git fetch --all
-  git diff ^main origin/main --exit-code
-  EXITCODE=$?
-  if [ $EXITCODE -eg 0 ]; then
-    echo "No change."
-    exit 0
-  fi
-}
+git fetch --all
+git diff ^main origin/main --exit-code
+EXITCODE=$?
+if [ $EXITCODE -eg 0 ]; then
+  echo "No change."
+  exit 0
+fi
 
-deploy() {
-  git checkout origin/master
-  source env/bin/activate
-  pip install --upgrade pip
-  pip install -r requirements.txt
-  python manage.py migrate
-  systemctl restart ath_status.service
-}
-
-lock
-has_change
-deploy
+git checkout origin/master
+source env/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+python manage.py migrate
+systemctl restart ath_status.service
