@@ -11,9 +11,9 @@ lock() {
   trap 'rm -r $LOCKDIR; exit' ERR EXIT
 
   if mkdir $LOCKDIR; then
-    echo >&2 "Lock Acquired"
+    echo "Lock Acquired"
   else
-    echo >&2 "Can not Acquire Lock."
+    echo "Can not Acquire Lock."
     exit 1
   fi
 }
