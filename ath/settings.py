@@ -29,7 +29,7 @@ def get_environment_variables(file_name="env_vars.txt"):
             if not line:
                 continue
             key, value = line.split("=")
-            _env_vars.update({key: value})
+            _env_vars.update({key.encode('ascii', errors='ignore').decode("UTF-8"): str(value)})
     return _env_vars
 
 
