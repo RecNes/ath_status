@@ -19,14 +19,13 @@ fi
 
 git fetch --all
 
-if [ $(git log HEAD..origin/main --oneline) ]
+if [ ! $(git log HEAD..origin/main --oneline) ]
 then
-  echo "asdfas"
+  echo "No Change!"
+  exit 0
 else
   echo "qweq"
 fi
-EXITCODE=$?
-test $EXITCODE -eq 0 && echo "No change."; exit 0
 
 git checkout origin/master
 source env/bin/activate
