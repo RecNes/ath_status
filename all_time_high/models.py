@@ -33,7 +33,7 @@ class ExchangeCurrency(models.Model):
     )
 
     def __str__(self):
-        return f"{self.base} X {self.target}"
+        return f"{self.base.upper()} X {self.target.upper()}"
 
     class Meta:
         constraints = [
