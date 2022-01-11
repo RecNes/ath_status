@@ -8,7 +8,7 @@ import django.db.models.deletion
 
 
 # noinspection PyPep8Naming
-def migrate_data_from_model_to_be_deleted(apps):
+def migrate_data_from_model_to_be_deleted(apps, schema_editor):
     AllTimeHighRate = apps.get_model("all_time_high", "AllTimeHighRate")
     AllTimeHigh = apps.get_model("all_time_high", "AllTimeHigh")
     ExchangeCurrency = apps.get_model("all_time_high", "ExchangeCurrency")
