@@ -18,16 +18,18 @@ else
 fi
 
 git fetch --all
-
-if [ ! $(git log HEAD..origin/main --oneline) ]
+GIT_STATUS=$(git log HEAD..origin/main --oneline)
+if [ -z "$GIT_STATUS" ]
 then
   echo "No Change!"
   exit 0
 else
-  echo "qweq"
+  echo "Deploying changes..."
 fi
 
-git checkout origin/master
+git checkout main
+git reset --hard origin/main
+git pull
 source env/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
