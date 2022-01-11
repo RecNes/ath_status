@@ -83,14 +83,14 @@
                 <tbody>
                 {% for exchange_currency in exchange_currencies %}
                     <tr>
-                        <td style="border: black 1px solid;">{{ exchange_currency }}</td>
-                        <td style="border: black 1px solid;" title="{{ exchange_currency.exchangerate_set.last.record_date }}">
+                        <td>{{ exchange_currency }}</td>
+                        <td title="{{ exchange_currency.exchangerate_set.last.record_date }}">
                             {{ exchange_currency.exchangerate_set.last.exchange_rate }}
                         </td>
-                        <td style="border: black 1px solid;" title="{{ exchange_currency.alltimehigh.update_date }}">
+                        <td title="{{ exchange_currency.alltimehigh.update_date }}">
                             {{ exchange_currency.alltimehigh.exchange_rate }}
                         </td>
-                        <td style="border: black 1px solid;" title="{{ exchange_currency.oneunitdropped.update_date }}">
+                        <td title="{{ exchange_currency.oneunitdropped.update_date }}">
                             {{ exchange_currency.oneunitdropped.exchange_rate }}
                         </td>
                     </tr>
