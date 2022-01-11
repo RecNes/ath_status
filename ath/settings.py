@@ -38,15 +38,15 @@ env_vars = get_environment_variables()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-DJANGO_ADMIN_URI = env_vars["DJANGO_ADMIN_URI"]
+DJANGO_ADMIN_URI = env_vars.get("DJANGO_ADMIN_URI")
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env_vars["DJANGO_SECRET_KEY"]
+SECRET_KEY = env_vars.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [env_vars["ALLOWED_HOST"], ]
+ALLOWED_HOSTS = [env_vars.get("ALLOWED_HOST"), ]
 
 # Application definition
 
@@ -143,12 +143,12 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-OPEN_EXCHANGE_RATES = env_vars["OPEN_EXCHANGE_RATES"]
-ABSTRACTAPI_API_KEY = env_vars["ABSTRACTAPI_API_KEY"]
+OPEN_EXCHANGE_RATES = env_vars.get("OPEN_EXCHANGE_RATES")
+ABSTRACTAPI_API_KEY = env_vars.get("ABSTRACTAPI_API_KEY")
 
-TELEGRAM_BOT = env_vars["TELEGRAM_BOT"]
+TELEGRAM_BOT = env_vars.get("TELEGRAM_BOT")
 
-TWITTER_API_KEY = env_vars["TWITTER_API_KEY"]
-TWITTER_API_SEC = env_vars["TWITTER_API_SEC"]
-TWITTER_TOKEN = env_vars["TWITTER_TOKEN"]
-TWITTER_TOKEN_SEC = env_vars["TWITTER_TOKEN_SEC"]
+TWITTER_API_KEY = env_vars.get("TWITTER_API_KEY")
+TWITTER_API_SEC = env_vars.get("TWITTER_API_SEC")
+TWITTER_TOKEN = env_vars.get("TWITTER_TOKEN")
+TWITTER_TOKEN_SEC = env_vars.get("TWITTER_TOKEN_SEC")
