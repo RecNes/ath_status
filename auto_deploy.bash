@@ -30,6 +30,7 @@ fi
 git checkout main
 git reset --hard origin/main
 git pull
+cp -fab .env_vars.txt env_vars.txt
 source env/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
