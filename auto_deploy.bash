@@ -18,7 +18,7 @@ else
 fi
 
 git fetch --all
-git diff ^main origin/main --exit-code
+git log HEAD..origin/main --oneline
 EXITCODE=$?
 test $EXITCODE -eq 0 && echo "No change."; exit 0
 
