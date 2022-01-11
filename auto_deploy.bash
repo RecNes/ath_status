@@ -34,6 +34,7 @@ source env/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 python manage.py migrate
+echo "Restarting service."
 systemctl restart ath_status.service
 
 echo "Done!"
