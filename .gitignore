@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 .idea
 .idea/
-env_vars.txt
+.env_vars.txt
