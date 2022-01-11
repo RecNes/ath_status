@@ -2,7 +2,7 @@
 
 LINK=$(readlink -f "$0")
 BASE_DIR=$(dirname "$LINK")
-cd $BASE_DIR || echo "Unable to switch to $BASE_DIR"; exit 1
+cd "${BASE_DIR}" || exit "Unable to switch to ${BASE_DIR}"
 
 LOCKDIR=/tmp/deployment.lock
 
