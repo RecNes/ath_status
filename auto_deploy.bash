@@ -18,7 +18,13 @@ else
 fi
 
 git fetch --all
-git log HEAD..origin/main --oneline
+
+if [ $(git log HEAD..origin/main --oneline) ]
+then
+  echo "asdfas"
+else
+  echo "qweq"
+fi
 EXITCODE=$?
 test $EXITCODE -eq 0 && echo "No change."; exit 0
 
