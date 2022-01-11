@@ -56,6 +56,8 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
 
     highest_rate = get_higher_rate(latest_rates)
     lowest_rate = get_lowest_rate(latest_rates)
+    if lowest_rate == 0:
+        lowest_rate = highest_rate
 
     currency, created = ExchangeCurrency.objects.get_or_create(
         base=from_currency.lower(),
