@@ -23,7 +23,7 @@ def get_environment_variables(file_name="env_vars.txt"):
     :return: named tuple of the variables
     """
     _env_vars = dict()
-    with open(os.path.join(BASE_DIR, file_name), "r") as env_file:
+    with open(os.path.join(BASE_DIR, file_name), "r", encoding="UTF-8") as env_file:
         for line in env_file:
             line = line.strip()
             if not line:
