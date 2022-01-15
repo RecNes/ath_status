@@ -108,6 +108,12 @@ class AllTimeHigh(models.Model):
         verbose_name=_("Bildir"),
         default=False
     )
+    last_notification_date = models.DateTimeField(
+        verbose_name=_("Son Bildirim Zamanı"),
+        null=True,
+        blank=False,
+        editable=False
+    )
 
     def __str__(self):
         return _("Tüm Zamanların En Yüksek Kuru: ") + f"{self.currency} = {self.exchange_rate}"
@@ -137,6 +143,41 @@ class OneUnitDropped(models.Model):
         verbose_name=_("Bildir"),
         default=False
     )
+    last_notification_date = models.DateTimeField(
+        verbose_name=_("Son Bildirim Zamanı"),
+        null=True,
+        blank=False,
+        editable=False
+    )
 
     def __str__(self):
-        return _("Son 1 Birim Düşüş Kuru: ") + f"{self.currency} = {self.exchange_rate}"
+        return _("Son 1 Birim Düşüş Rakamı: ") + f"{self.currency} = {self.exchange_rate}"
+
+
+class NotificationSetting(models.Model):
+
+    is_telegram_enabled = models.BooleanField(
+        verbose_name=_("Telegram Bildirimi Açık"),
+        default=True
+    )
+    telegram_notification_interval = models.PositiveSmallIntegerField(
+        verbose_name=_("Telegram'a Mesaj Gönderme Sıklığı"),
+        help_text=_("Dakika bazında"),
+        default=30
+    )
+    is_twitter_enabled = models.BooleanField(
+        verbose_name=_("Twitter Bildirimi Açık"),
+        default=True
+    )
+    twitter_notification_interval = models.PositiveSmallIntegerField(
+        verbose_name=_("Twitter'a Mesaj Gönderme Sıklığı"),
+        help_text=_("Dakika bazında"),
+        default=30
+    )
+
+    def __str__(self):
+        return str(_("Bildirim ayarları"))
+
+    class Meta:
+        verbose_name = _("Bildirim Ayarı")
+        verbose_name_plural = _("Bildirim Ayarları")
