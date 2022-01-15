@@ -75,7 +75,7 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
         all_time_high = None
 
     if all_time_high is None or current_exchange_rate > all_time_high.exchange_rate:
-        all_time_high = AllTimeHigh.objects.get_or_create(
+        all_time_high, created = AllTimeHigh.objects.get_or_create(
             currency=currency
         )
         all_time_high.exchange_rate = current_exchange_rate
@@ -87,8 +87,8 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
     except OneUnitDropped.DoesNotExist:
         one_unit_drop = None
 
-    if one_unit_drop is None or one_unit_drop.exchange_rate - lowest_rate >= 1:
-        one_unit_drop = OneUnitDropped.objects.get_or_create(
+    if one_unit_drop is None or one_unit_drop.exchange_rate <= 0 or one_unit_drop.exchange_rate - lowest_rate >= 1:
+        one_unit_drop, created = OneUnitDropped.objects.get_or_create(
             currency=currency
         )
         one_unit_drop.exchange_rate = lowest_rate.quantize(Decimal("0.00"))
