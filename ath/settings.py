@@ -9,44 +9,32 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import environ
 import os.path
 from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-def get_environment_variables(file_name="env_vars.txt"):
-    """
-    Read environment variables from file
-    :param file_name: name of file availabel in BASEDIR containing environment varibale
-    :return: named tuple of the variables
-    """
-    _env_vars = dict()
-    with open(os.path.join(BASE_DIR, file_name), "r", encoding="UTF-8") as env_file:
-        for line in env_file:
-            line = line.strip()
-            if not line:
-                continue
-            key, value = line.split("=")
-            _env_vars.update({key.encode('ascii', errors='ignore').decode("UTF-8"): str(value)})
-    return _env_vars
-
-
-env_vars = get_environment_variables()
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+environ.Env.read_env(os.path.join(BASE_DIR, 'env_vars.txt'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-DJANGO_ADMIN_URI = env_vars.get("DJANGO_ADMIN_URI")
+DJANGO_ADMIN_URI = env("DJANGO_ADMIN_URI")
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env_vars.get("DJANGO_SECRET_KEY")
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = [env_vars.get("ALLOWED_HOST"), ]
+ALLOWED_HOSTS = [env("ALLOWED_HOST"), ]
 
 # Application definition
 
@@ -143,12 +131,12 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-OPEN_EXCHANGE_RATES = env_vars.get("OPEN_EXCHANGE_RATES")
-ABSTRACTAPI_API_KEY = env_vars.get("ABSTRACTAPI_API_KEY")
+OPEN_EXCHANGE_RATES = env("OPEN_EXCHANGE_RATES")
+ABSTRACTAPI_API_KEY = env("ABSTRACTAPI_API_KEY")
 
-TELEGRAM_BOT = env_vars.get("TELEGRAM_BOT")
+TELEGRAM_BOT = env("TELEGRAM_BOT")
 
-TWITTER_API_KEY = env_vars.get("TWITTER_API_KEY")
-TWITTER_API_SEC = env_vars.get("TWITTER_API_SEC")
-TWITTER_TOKEN = env_vars.get("TWITTER_TOKEN")
-TWITTER_TOKEN_SEC = env_vars.get("TWITTER_TOKEN_SEC")
+TWITTER_API_KEY = env("TWITTER_API_KEY")
+TWITTER_API_SEC = env("TWITTER_API_SEC")
+TWITTER_TOKEN = env("TWITTER_TOKEN")
+TWITTER_TOKEN_SEC = env("TWITTER_TOKEN_SEC")
