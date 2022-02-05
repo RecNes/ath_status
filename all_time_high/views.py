@@ -8,7 +8,7 @@ from all_time_high.models import ExchangeCurrency, AllTimeHigh, OneUnitDropped, 
 
 def get_higher_rate(latest_rates) -> Decimal:
     """
-    return highest rate
+    Return highest rate
     :param latest_rates:
     :return:
     """
@@ -22,7 +22,7 @@ def get_higher_rate(latest_rates) -> Decimal:
 
 def get_lowest_rate(latest_rates) -> Decimal:
     """
-    return lowest rate
+    Return lowest rate
     :param latest_rates:
     :return:
     """
@@ -36,7 +36,7 @@ def get_lowest_rate(latest_rates) -> Decimal:
 
 def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1) -> object:
     """
-    Fetch exchnge rate and save to DB and return object.
+    Fetch exchange rate and save to DB and return object.
     :param from_currency:
     :param to_currency:
     :param currency_amount:
@@ -87,11 +87,14 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
     except OneUnitDropped.DoesNotExist:
         one_unit_drop = None
 
-    if one_unit_drop is None or one_unit_drop.exchange_rate <= 0 or one_unit_drop.exchange_rate - lowest_rate >= 1:
+    no_one_unit_drop = one_unit_drop is None or one_unit_drop.exchange_rate <= 0
+    rounded_lowest_rate = lowest_rate.quantize(Decimal("0"))
+    one_unit_dropped = one_unit_drop.exchange_rate.quantize(Decimal("0")) - rounded_lowest_rate >= 1
+    if no_one_unit_drop or one_unit_dropped:
         one_unit_drop, created = OneUnitDropped.objects.get_or_create(
             currency=currency
         )
-        one_unit_drop.exchange_rate = lowest_rate.quantize(Decimal("0.00"))
+        one_unit_drop.exchange_rate = rounded_lowest_rate
         one_unit_drop.notify = True
         one_unit_drop.save()
 
