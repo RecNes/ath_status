@@ -13,6 +13,9 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class ExchangeCurrency(models.Model):
+    """
+    Exchange currency model
+    """
     base = models.CharField(
         verbose_name=_("Para Birimi 1"),
         max_length=3,
@@ -48,6 +51,9 @@ class ExchangeCurrency(models.Model):
 
 
 class ExchangeRate(models.Model):
+    """
+    Exchange rate model
+    """
     currency = models.ForeignKey(
         to="ExchangeCurrency",
         verbose_name=_("Kur Birimleri"),
@@ -85,6 +91,9 @@ class ExchangeRate(models.Model):
 
 
 class AllTimeHigh(models.Model):
+    """
+    All time high model
+    """
     currency = models.OneToOneField(
         to="ExchangeCurrency",
         verbose_name=_("Kur Birimleri"),
@@ -120,6 +129,9 @@ class AllTimeHigh(models.Model):
 
 
 class OneUnitDropped(models.Model):
+    """
+    One unit dropped model
+    """
     currency = models.OneToOneField(
         to="ExchangeCurrency",
         verbose_name=_("Kur Birimleri"),
@@ -155,7 +167,9 @@ class OneUnitDropped(models.Model):
 
 
 class NotificationSetting(models.Model):
-
+    """
+    Notifiaction settings model
+    """
     is_telegram_enabled = models.BooleanField(
         verbose_name=_("Telegram Bildirimi Açık"),
         default=True
