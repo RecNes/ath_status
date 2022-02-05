@@ -18,6 +18,11 @@ $ 1.00 = {instance.exchange_rate} ₺
 
 
 def create_oud_message(instance):
+    """
+    Create notification message
+    :param instance:
+    :return:
+    """
     return f'''⁃ 1 Birimlik Düşüş Yaşandı:
  
 $ 1.00 = {instance.exchange_rate} ₺ 
@@ -27,20 +32,43 @@ $ 1.00 = {instance.exchange_rate} ₺
 
 
 def is_certain_minutes_passed_from_last_notification(instance, minutes=5):
+    """
+    Certain time has to be passed before the last notification was sent
+    :param instance:
+    :param minutes:
+    :return:
+    """
     if instance.last_notification_date + timedelta(minutes=minutes) < timezone.now():
         return True
     return False
 
 
 def get_notification_settings():
+    """
+    Return notification settings
+    :return:
+    """
     return NotificationSetting.objects.last()
 
 
 def is_it_time(instance, interval):
+    """
+    Is it time to sent new notification?
+    :param instance:
+    :param interval:
+    :return:
+    """
     return instance.last_notification_date + timedelta(minutes=interval) < timezone.now()
 
 
 def send_notifications(instance, notification_settings, message):
+    """
+    Notify the channels
+    :param instance:
+    :param notification_settings:
+    :param message:
+    :return:
+    """
     if not instance.notify:
         return
 
@@ -60,12 +88,22 @@ def send_notifications(instance, notification_settings, message):
 
 
 def post_ath_message(notification_settings):
+    """
+    Post the ath message
+    :param notification_settings:
+    :return:
+    """
     instance = AllTimeHigh.objects.last()
     message = create_ath_message(instance)
     send_notifications(instance, notification_settings, message)
 
 
 def post_oud_message(notification_settings):
+    """
+    Post the one unit dropped message
+    :param notification_settings:
+    :return:
+    """
     instance = OneUnitDropped.objects.all()
     message = create_oud_message(instance)
     send_notifications(instance, notification_settings, message)
