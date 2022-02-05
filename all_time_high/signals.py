@@ -7,11 +7,29 @@ from all_time_high.models import AllTimeHigh, OneUnitDropped
 
 @receiver(post_save, sender=AllTimeHigh, dispatch_uid="post_ath_message")
 def post_ath_message(sender, instance, raw, *args, **kwargs):
+    """
+    Post ath message via triggered signal
+    :param sender:
+    :param instance:
+    :param raw:
+    :param args:
+    :param kwargs:
+    :return:
+    """
     notification_settings = notify.get_notification_settings()
     notify.post_ath_message(notification_settings)
 
 
 @receiver(post_save, sender=OneUnitDropped, dispatch_uid="post_oud_message")
 def post_oud_message(sender, instance, raw, *args, **kwargs):
+    """
+    Post one unit dropped message via signal
+    :param sender:
+    :param instance:
+    :param raw:
+    :param args:
+    :param kwargs:
+    :return:
+    """
     notification_settings = notify.get_notification_settings()
     notify.post_oud_message(notification_settings)
