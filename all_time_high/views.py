@@ -1,6 +1,8 @@
 from decimal import Decimal
 
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 
 from all_time_high.api import from_google_exchange_rates, from_open_exchange_rates, from_abstractapi_exchange_rates
 from all_time_high.models import ExchangeCurrency, AllTimeHigh, OneUnitDropped, ExchangeRate
@@ -103,7 +105,13 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
 
 def one_page_view(request):
     template = "one_page_template.html"
+    graph_day_range = 2
     content = {
-        "exchange_currencies": ExchangeCurrency.objects.all()
+        "exchange_currencies": ExchangeCurrency.objects.all(),
+        "graph_day_range": graph_day_range
     }
     return render(request, template, context=content)
+
+
+def big_graph(request, currency_id):
+    return HttpResponseRedirect(reverse("main"))

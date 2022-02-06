@@ -1,4 +1,4 @@
-{% load i18n static %}
+{% load i18n static graphs %}
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -79,6 +79,7 @@
                     <td style="border: black 1px solid;">{% trans "Current Rate" %}</td>
                     <td style="border: black 1px solid;">{% trans "ATH Rate" %}</td>
                     <td style="border: black 1px solid;">{% trans "One Unit Dropped" %}</td>
+                    <td style="border: black 1px solid;">{{ graph_day_range }} {% trans " Days Graph" %}</td>
                 </tr>
                 </thead>
                 <tbody>
@@ -93,6 +94,11 @@
                         </td>
                         <td title="{{ exchange_currency.oneunitdropped.update_date }}">
                             {{ exchange_currency.oneunitdropped.exchange_rate }}
+                        </td>
+                        <td>
+                            <a href="{% url "big_graph" exchange_currency.id %}">
+                                <img src="data:image/png;base64, {% get_graph exchange_currency graph_day_range %}" />
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}

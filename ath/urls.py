@@ -17,9 +17,10 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path
 
-from all_time_high.views import one_page_view
+from all_time_high.views import one_page_view, big_graph
 
 urlpatterns = [
     path(f"{settings.DJANGO_ADMIN_URI}/", admin.site.urls),
-    path('', one_page_view)
+    path("", one_page_view, name="main"),
+    path("big_graph/<int:currency_id>", big_graph, name="big_graph")
 ]
