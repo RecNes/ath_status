@@ -29,8 +29,8 @@ def get_graph(exchange_currency, day_range):
     fig.update_layout(
         showlegend=False,
         plot_bgcolor="white",
-        margin=dict(t=10, l=10, b=10, r=10)
+        margin=dict(t=5, l=0, b=5, r=0)
     )
-    fig_image = fig.to_image(format="png", width=150, height=50)
+    fig_image = fig.to_image(format="png", width=300, height=50)
     decoded = base64.b64encode(fig_image).decode('ascii')
     return decoded
