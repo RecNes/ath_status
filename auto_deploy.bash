@@ -34,6 +34,7 @@ cp -fab .env_vars.txt env_vars.txt
 source env/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
+python manage.py collectstatic
 python manage.py migrate
 echo >&2 "Restarting service."
 systemctl restart ath_status.service
