@@ -58,7 +58,10 @@ def is_it_time(instance, interval):
     :param interval:
     :return:
     """
-    return instance.last_notification_date + timedelta(minutes=interval) < timezone.now()
+    _is_it_time = False
+    if instance.last_notification_date:
+        _is_it_time = instance.last_notification_date + timedelta(minutes=interval) < timezone.now()
+    return _is_it_time
 
 
 def send_notifications(instance, notification_settings, message):
