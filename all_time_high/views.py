@@ -91,7 +91,9 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
 
     no_one_unit_drop = one_unit_drop is None or one_unit_drop.exchange_rate <= 0
     rounded_lowest_rate = lowest_rate.quantize(Decimal("0"))
-    one_unit_dropped = one_unit_drop.exchange_rate.quantize(Decimal("0")) - rounded_lowest_rate >= 1
+    one_unit_dropped = None
+    if one_unit_drop:
+        one_unit_dropped = one_unit_drop.exchange_rate.quantize(Decimal("0")) - rounded_lowest_rate >= 1
     if no_one_unit_drop or one_unit_dropped:
         one_unit_drop, created = OneUnitDropped.objects.get_or_create(
             currency=currency
