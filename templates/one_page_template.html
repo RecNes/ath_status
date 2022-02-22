@@ -90,15 +90,30 @@
                 <tbody>
                 {% for exchange_currency in exchange_currencies %}
                     <tr>
-                        <td>1 {{ exchange_currency.base.upper }}</td>
+                        <td>
+                            1 {{ exchange_currency.base.upper }}
+                            {% if exchange_currency.base_symbol %}
+                                ({{ exchange_currency.base_symbol }})
+                            {% endif %}
+                        </td>
                         <td title="{{ exchange_currency.exchangerate_set.last.record_date }}">
-                            {{ exchange_currency.exchangerate_set.last.exchange_rate }} ₺
+                            {{ exchange_currency.exchangerate_set.last.exchange_rate }}
+                            {% if exchange_currency.target_symbol %}
+                                {{ exchange_currency.target_symbol }}
+                            {% endif %}
                         </td>
                         <td title="{{ exchange_currency.alltimehigh.update_date }}">
-                            {{ exchange_currency.alltimehigh.exchange_rate }} ₺
+                            {{ exchange_currency.alltimehigh.exchange_rate }}
+                            {% if exchange_currency.target_symbol %}
+                                {{ exchange_currency.target_symbol }}
+                            {% endif %}
+
                         </td>
                         <td title="{{ exchange_currency.oneunitdropped.update_date }}">
-                            {{ exchange_currency.oneunitdropped.exchange_rate }} ₺
+                            {{ exchange_currency.oneunitdropped.exchange_rate }}
+                            {% if exchange_currency.target_symbol %}
+                                {{ exchange_currency.target_symbol }}
+                            {% endif %}
                         </td>
                         <td>
                             <a href="{% url "big_graph" exchange_currency.id %}">
@@ -119,7 +134,7 @@
                 </h2>
                 <p style="width: 300px; margin-left: auto; margin-right: auto;">
                     <span>
-                        Collects TRY exchange rates (USD x TRY for now), and then tweets and/or send message over telegram if last ATH were exceeded.
+                        Collects TRY exchange rates, and then tweets and/or send message over telegram if last ATH were exceeded.
                     </span>
                     <br>
                     <br>
