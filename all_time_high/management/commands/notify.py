@@ -104,7 +104,7 @@ def post_oud_message(notification_settings):
     :param notification_settings:
     :return:
     """
-    instance = OneUnitDropped.objects.all()
+    instance = OneUnitDropped.objects.last()
     message = create_oud_message(instance)
     send_notifications(instance, notification_settings, message)
 
