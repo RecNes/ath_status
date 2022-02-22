@@ -21,7 +21,8 @@ def get_graph(exchange_currency, day_range):
     for item in currency_data_qs:
         date_list.append(item.record_date)
         rate_list.append(item.exchange_rate)
-
+    if not date_list or not rate_list:
+        return
     fig = px.line(None, x=date_list, y=rate_list)
     fig.update_xaxes(visible=False, fixedrange=True)
     fig.update_yaxes(visible=False, fixedrange=True)
