@@ -8,7 +8,15 @@ from all_time_high.views import get_exchange_rate
 class Command(BaseCommand):
     help = _("Kur fiyatlarını çeker")
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--quiet",
+            action="store_true",
+            help=_("Çıktı vermemesini sağlar."),
+        )
+
     def handle(self, *args, **options):
+        is_quiet = options["quiet"]
         exchange_currencies = ExchangeCurrency.objects.all()
         for exchange_currency in exchange_currencies:
             try:
@@ -18,10 +26,16 @@ class Command(BaseCommand):
                     currency_amount=1)
 
                 last_rate = ExchangeRate.objects.filter(currency=currency).last()
-                self.stdout.write(
-                    self.style.SUCCESS(f"{last_rate}")
-                )
+
+                if not is_quiet:
+                    self.stdout.write(
+                        self.style.SUCCESS(f"{last_rate}")
+                    )
+
             except Exception as uee:
-                self.stdout.write(
-                    self.style.ERROR(f"{exchange_currency}:\r\n{uee}")
-                )
+
+                if not is_quiet:
+                    self.stdout.write(
+                        self.style.ERROR(f"{exchange_currency}:\r\n{uee}")
+                    )
+                pass
