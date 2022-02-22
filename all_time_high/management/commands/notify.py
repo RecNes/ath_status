@@ -14,7 +14,7 @@ def create_ath_message(instance):
 $ 1.00 = {instance.exchange_rate} ₺ 
 
 ◦ ATH: Tüm zamanların en yükseği
-◦ Otomatik mesaj http://atshstatus.recnes.com/'''
+◦ Otomatik mesaj https://athstatus.recnes.com/'''
 
 
 def create_oud_message(instance):
@@ -28,7 +28,7 @@ def create_oud_message(instance):
 $ 1.00 = {instance.exchange_rate} ₺ 
 
 ◦ Bu mesaj otomatik olarak oluşturulmuştur.
-◦ Otomatik mesaj http://atshstatus.recnes.com/'''
+◦ Otomatik mesaj https://athstatus.recnes.com/'''
 
 
 def is_certain_minutes_passed_from_last_notification(instance, minutes=5):
