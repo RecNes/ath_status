@@ -25,6 +25,16 @@ class ExchangeCurrency(models.Model):
             ProhibitNullCharactersValidator()
         ]
     )
+    base_symbol = models.CharField(
+        verbose_name=_("Para Birimi 1 Sembolü"),
+        max_length=3,
+        null=True,
+        blank=True,
+        validators=[
+            MaxLengthValidator(3),
+            ProhibitNullCharactersValidator()
+        ]
+    )
     target = models.CharField(
         verbose_name=_("Para Birimi 2"),
         max_length=3,
@@ -34,11 +44,29 @@ class ExchangeCurrency(models.Model):
             ProhibitNullCharactersValidator()
         ]
     )
+    target_symbol = models.CharField(
+        verbose_name=_("Para Birimi 2 Sembolü"),
+        max_length=3,
+        null=True,
+        blank=True,
+        validators=[
+            MaxLengthValidator(3),
+            ProhibitNullCharactersValidator()
+        ]
+    )
 
     def __str__(self):
-        return f"{self.base.upper()} X {self.target.upper()}"
+        base_currency_text = f"{self.base.upper()}"
+        if self.base_symbol is not None:
+            base_currency_text += f" ({self.base_symbol})"
+        target_currency_text = f"{self.target.upper()}"
+        if self.target_symbol is not None:
+            target_currency_text += f" ({self.target_symbol})"
+        return f"{base_currency_text} <> {target_currency_text}"
 
     class Meta:
+        verbose_name = _("Para Birimi")
+        verbose_name_plural = _("Para Birimleri")
         constraints = [
             UniqueConstraint(
                 fields=["base", "target"],
@@ -78,6 +106,8 @@ class ExchangeRate(models.Model):
         return _("Güncel Kur:") + f" {self.exchange_rate}"
 
     class Meta:
+        verbose_name = _("Kur Oranı")
+        verbose_name_plural = _("Kur Oranları")
         constraints = [
             UniqueConstraint(
                 fields=["exchange_rate", "record_date"],
@@ -127,6 +157,10 @@ class AllTimeHigh(models.Model):
     def __str__(self):
         return _("Tüm Zamanların En Yüksek Kuru: ") + f"{self.currency} = {self.exchange_rate}"
 
+    class Meta:
+        verbose_name = _("Tüm Zamanların En Yüksek Kuru")
+        verbose_name_plural = _("Tüm Zamanların En Yüksek Kuru")
+
 
 class OneUnitDropped(models.Model):
     """
@@ -165,10 +199,14 @@ class OneUnitDropped(models.Model):
     def __str__(self):
         return _("Son 1 Birim Düşüş Rakamı: ") + f"{self.currency} = {self.exchange_rate}"
 
+    class Meta:
+        verbose_name = _("1 Birim Düşüş")
+        verbose_name_plural = _("1 Birim Düşüş")
+
 
 class NotificationSetting(models.Model):
     """
-    Notifiaction settings model
+    Notification settings model
     """
     is_telegram_enabled = models.BooleanField(
         verbose_name=_("Telegram Bildirimi Açık"),
