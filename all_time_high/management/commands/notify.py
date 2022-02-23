@@ -9,9 +9,17 @@ from all_time_high.models import AllTimeHigh, NotificationSetting, OneUnitDroppe
 
 
 def create_ath_message(instance):
+    base_currency_symbol = instance.currency.base
+    if instance.currency.base_symbol:
+        base_currency_symbol = instance.currency.base_symbol
+
+    target_currency_symbol = instance.currency.target
+    if instance.currency.target_symbol:
+        target_currency_symbol = instance.currency.target_symbol
+
     return f'''⁃ Yeni ATH:
  
-$ 1.00 = {instance.exchange_rate} ₺ 
+{base_currency_symbol} 1.00 = {instance.exchange_rate} {target_currency_symbol} 
 
 ◦ ATH: Tüm zamanların en yükseği
 ◦ Otomatik mesaj https://athstatus.recnes.com/'''
@@ -23,9 +31,17 @@ def create_oud_message(instance):
     :param instance:
     :return:
     """
+    base_currency_symbol = instance.currency.base
+    if instance.currency.base_symbol:
+        base_currency_symbol = instance.currency.base_symbol
+
+    target_currency_symbol = instance.currency.target
+    if instance.currency.target_symbol:
+        target_currency_symbol = instance.currency.target_symbol
+
     return f'''⁃ 1 Birimlik Düşüş Yaşandı:
  
-$ 1.00 = {instance.exchange_rate} ₺ 
+{base_currency_symbol} 1.00 = {instance.exchange_rate} {target_currency_symbol}
 
 ◦ Bu mesaj otomatik olarak oluşturulmuştur.
 ◦ Otomatik mesaj https://athstatus.recnes.com/'''
