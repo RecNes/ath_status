@@ -5,7 +5,8 @@ from django.core.validators import (
     MinLengthValidator,
     ProhibitNullCharactersValidator,
     DecimalValidator,
-    MinValueValidator
+    MinValueValidator,
+    EmailValidator
 )
 from django.db import models
 from django.db.models import UniqueConstraint
@@ -227,11 +228,11 @@ class NotificationSetting(models.Model):
         default=30
     )
     is_email_list_enabled = models.BooleanField(
-        verbose_name=_("EPosta Listesi Bildirimi Açık"),
+        verbose_name=_("Eposta Listesi Bildirimi Açık"),
         default=True
     )
     email_list_notification_interval = models.PositiveSmallIntegerField(
-        verbose_name=_("EPosta Listesi'ne Mesaj Gönderme Sıklığı"),
+        verbose_name=_("Eposta Listesi'ne Mesaj Gönderme Sıklığı"),
         help_text=_("Dakika bazında"),
         default=30
     )
@@ -242,3 +243,31 @@ class NotificationSetting(models.Model):
     class Meta:
         verbose_name = _("Bildirim Ayarı")
         verbose_name_plural = _("Bildirim Ayarları")
+
+
+class NotificationEmails(models.Model):
+    email = models.EmailField(
+        verbose_name=_("Eposta Adresi"),
+        max_length=255,
+        validators=[
+            EmailValidator(message=_("Geçerli bir eposta adresi girin.")),
+            MaxLengthValidator(255),
+            MinLengthValidator(5),
+            ProhibitNullCharactersValidator()
+        ]
+    )
+    register_date = models.DateTimeField(
+        verbose_name=_("Kayıt Tarihi"),
+        auto_now_add=True
+    )
+    last_notified_at = models.DateTimeField(
+        verbose_name=_("Son Bildirim Gönderme Tarihi"),
+        auto_now=True
+    )
+
+    def __str__(self):
+        return str(_("Bildirim ayarları"))
+
+    class Meta:
+        verbose_name = _("Eposta Adresi")
+        verbose_name_plural = _("Eposta Adresleri")
