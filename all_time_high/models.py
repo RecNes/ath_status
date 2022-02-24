@@ -226,6 +226,15 @@ class NotificationSetting(models.Model):
         help_text=_("Dakika bazında"),
         default=30
     )
+    is_email_list_enabled = models.BooleanField(
+        verbose_name=_("EPosta Listesi Bildirimi Açık"),
+        default=True
+    )
+    email_list_notification_interval = models.PositiveSmallIntegerField(
+        verbose_name=_("EPosta Listesi'ne Mesaj Gönderme Sıklığı"),
+        help_text=_("Dakika bazında"),
+        default=30
+    )
 
     def __str__(self):
         return str(_("Bildirim ayarları"))
