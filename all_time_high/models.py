@@ -262,7 +262,6 @@ class NotificationEmails(models.Model):
     )
     last_notified_at = models.DateTimeField(
         verbose_name=_("Son Bildirim Gönderme Tarihi"),
-        auto_now=True
     )
 
     def __str__(self):
