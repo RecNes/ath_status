@@ -108,7 +108,7 @@
         }
 
         function getChartData(id) {
-            let chartUrl = '/get-chart-data/' + id + '/';
+            let chartUrl = '/get-chart-data/' + id;
             fetch(chartUrl)
             .then(response => response.json())
             .then(data => {
