@@ -10,7 +10,7 @@ from django.core.validators import (
 )
 from django.db import models
 from django.db.models import UniqueConstraint
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 class ExchangeCurrency(models.Model):
@@ -86,7 +86,8 @@ class ExchangeRate(models.Model):
     currency = models.ForeignKey(
         to="ExchangeCurrency",
         verbose_name=_("Kur Birimleri"),
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="rates"
     )
     exchange_rate = models.DecimalField(
         verbose_name=_("Güncel Kur"),
@@ -123,7 +124,7 @@ class ExchangeRate(models.Model):
 
 class AllTimeHigh(models.Model):
     """
-    All time high model
+    All-time high model
     """
     currency = models.OneToOneField(
         to="ExchangeCurrency",

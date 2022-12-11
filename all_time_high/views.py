@@ -1,11 +1,16 @@
+from datetime import timedelta
 from decimal import Decimal
 
-from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
 
 from all_time_high.api import from_google_exchange_rates, from_open_exchange_rates, from_abstractapi_exchange_rates
 from all_time_high.models import ExchangeCurrency, AllTimeHigh, OneUnitDropped, ExchangeRate
+from all_time_high.serializers import ExchangeRateSerializer
+from ath import settings
 
 
 def get_higher_rate(latest_rates) -> Decimal:
@@ -69,7 +74,7 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
     exchange_rate_obj = ExchangeRate(
         exchange_rate=current_exchange_rate
     )
-    currency.exchangerate_set.add(exchange_rate_obj, bulk=False)
+    currency.rates.add(exchange_rate_obj, bulk=False)
 
     try:
         all_time_high = currency.alltimehigh
@@ -105,15 +110,33 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
     return currency
 
 
+@ensure_csrf_cookie
 def one_page_view(request):
     template = "one_page_template.html"
-    graph_day_range = 2
     content = {
         "exchange_currencies": ExchangeCurrency.objects.all(),
-        "graph_day_range": graph_day_range
+        "graph_day_range": settings.GRAPH_DATE_RANGE
     }
     return render(request, template, context=content)
 
 
-def big_graph(request, currency_id):
-    return HttpResponseRedirect(reverse("main"))
+class ExchangeGraphView(ListAPIView):
+    serializer_class = ExchangeRateSerializer
+
+    def get_queryset(self):
+        """
+        This view is return a list of all the rates of selected exchange in date range.
+        """
+        date_range_end = timezone.now()
+        date_range_start = date_range_end - timedelta(days=settings.GRAPH_DATE_RANGE)
+        exchange_currency = ExchangeCurrency.objects.prefetch_related("rates").get(pk=self.kwargs["pk"])
+        exchange_rates = exchange_currency.rates.filter(
+            record_date__gte=date_range_start,
+            record_date__lt=date_range_end,
+        )
+        return exchange_rates
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)

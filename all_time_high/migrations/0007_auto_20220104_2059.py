@@ -16,24 +16,25 @@ def migrate_data_from_model_to_be_deleted(apps, schema_editor):
 
     all_time_high_rate = AllTimeHighRate.objects.last()
 
-    currency, created = ExchangeCurrency.objects.get_or_create(
-        base=all_time_high_rate.currency_1, target=all_time_high_rate.currency_2
-    )
-    try:
-        ExchangeRate.objects.get(currency=currency)
-    except ExchangeRate.DoesNotExist:
-        ExchangeRate.objects.create(
-            currency=currency,
-            exchange_rate=all_time_high_rate.exchange_rate
+    if all_time_high_rate is not None:
+        currency, created = ExchangeCurrency.objects.get_or_create(
+            base=all_time_high_rate.currency_1, target=all_time_high_rate.currency_2
         )
+        try:
+            ExchangeRate.objects.get(currency=currency)
+        except ExchangeRate.DoesNotExist:
+            ExchangeRate.objects.create(
+                currency=currency,
+                exchange_rate=all_time_high_rate.exchange_rate
+            )
 
-    try:
-        AllTimeHigh.objects.get(currency=currency)
-    except AllTimeHigh.DoesNotExist:
-        AllTimeHigh.objects.create(
-            currency=currency,
-            exchange_rate=all_time_high_rate.all_time_high_rate
-        )
+        try:
+            AllTimeHigh.objects.get(currency=currency)
+        except AllTimeHigh.DoesNotExist:
+            AllTimeHigh.objects.create(
+                currency=currency,
+                exchange_rate=all_time_high_rate.all_time_high_rate
+            )
 
 
 class Migration(migrations.Migration):

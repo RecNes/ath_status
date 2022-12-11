@@ -1,6 +1,6 @@
-{% load i18n static graphs %}
+{% load i18n static %}
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>All Times High Rates</title>
@@ -68,62 +68,139 @@
             border-radius: 30px;
         }
         /* color scheme https://dribbble.com/shots/9684776-Cryptocurrency-Exchange-Design */
+
     </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+
+    <script type="text/javascript">
+        function getCookie(name) {
+            if (!document.cookie) {
+                return null;
+            }
+
+            const xsrfCookies = document.cookie.split(';')
+                .map(c => c.trim())
+                .filter(c => c.startsWith(name + '='));
+
+            if (xsrfCookies.length === 0) {
+                return null;
+            }
+                return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+            }
+
+        const csrfToken = getCookie('CSRF-TOKEN');
+
+        function getXValues(data) {
+            var dateList = [];
+            data.forEach( item => {
+                dateList.push(Date(Date.parse(item.record_date)));
+            })
+            return dateList;
+        }
+
+        function getYValues(data) {
+            var rateList = [];
+            data.forEach( item => {
+                rateList.push(Number(item.exchange_rate));
+            })
+            return rateList;
+        }
+
+        function getChartData(id) {
+            let chartUrl = '/get-chart-data/' + id + '/';
+            fetch(chartUrl)
+            .then(response => response.json())
+            .then(data => {
+                let ctx = document.getElementById(`${id}-currency-chart`);
+                let xValues = getXValues(data);
+                let yValues = getYValues(data);
+                let chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: xValues,
+                        datasets: [{
+                            data: yValues
+                        }]
+                    },
+                    options: {
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            xAxes: [{
+                                ticks: {
+                                    display: false
+                                }
+                            }]
+                        }
+                    }
+                });
+                chart.update();
+            });
+        }
+
+        function drawCharts() {
+            let chartCanvases = document.getElementsByClassName('currency-chart');
+            Array.prototype.forEach.call(chartCanvases, function(item) {
+                getChartData(item.dataset.id);
+            });
+        }
+    </script>
 </head>
-<body>
+<body onload="drawCharts();">
 
 <div class="container">
     <div class="centered">
         <div class="inner-left">
             <div class="box_left">
 
-            <table style="border: black 0 solid; align-self: center; width: 98%; text-align: center;">
-                <thead>
-                <tr>
-                    <td>{% trans "Currency" %}</td>
-                    <td>{% trans "Current Rate" %}</td>
-                    <td>{% trans "ATH Rate" %}</td>
-                    <td>{% trans "One Unit Dropped" %}</td>
-                    <td>{{ graph_day_range }} {% trans " Days Graph" %}</td>
-                </tr>
-                </thead>
-                <tbody>
-                {% for exchange_currency in exchange_currencies %}
+                <table style="border: black 0 solid; align-self: center; width: 98%; text-align: center;">
+                    <thead>
+                    <tr>
+                        <td>{% trans "Currency" %}</td>
+                        <td>{% trans "Current Rate" %}</td>
+                        <td>{% trans "ATH Rate" %}</td>
+                        <td>{% trans "One Unit Dropped" %}</td>
+                        <td>{{ graph_day_range }} {% trans " Days Graph" %}</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for exchange_currency in exchange_currencies %}
                     <tr>
                         <td>
                             1 {{ exchange_currency.base.upper }}
                             {% if exchange_currency.base_symbol %}
-                                ({{ exchange_currency.base_symbol }})
+                            ({{ exchange_currency.base_symbol }})
                             {% endif %}
                         </td>
-                        <td title="{{ exchange_currency.exchangerate_set.last.record_date }}">
-                            {{ exchange_currency.exchangerate_set.last.exchange_rate }}
+                        <td title="{{ exchange_currency.rates.last.record_date }}">
+                            {{ exchange_currency.rates.last.exchange_rate }}
                             {% if exchange_currency.target_symbol %}
-                                {{ exchange_currency.target_symbol }}
+                            {{ exchange_currency.target_symbol }}
                             {% endif %}
                         </td>
                         <td title="{{ exchange_currency.alltimehigh.update_date }}">
                             {{ exchange_currency.alltimehigh.exchange_rate }}
                             {% if exchange_currency.target_symbol %}
-                                {{ exchange_currency.target_symbol }}
+                            {{ exchange_currency.target_symbol }}
                             {% endif %}
-
                         </td>
                         <td title="{{ exchange_currency.oneunitdropped.update_date }}">
                             {{ exchange_currency.oneunitdropped.exchange_rate }}
                             {% if exchange_currency.target_symbol %}
-                                {{ exchange_currency.target_symbol }}
+                            {{ exchange_currency.target_symbol }}
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{% url "big_graph" exchange_currency.id %}">
-                                <img src="data:image/png;base64, {% get_graph exchange_currency graph_day_range %}" />
-                            </a>
+                            <canvas class="currency-chart" id="{{ exchange_currency.id }}-currency-chart"
+                                    data-id="{{ exchange_currency.id }}" width="300" height="50">
+                            </canvas>
                         </td>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
         <div class="inner-right">
@@ -143,7 +220,8 @@
                 </p>
                 <ul>
                     <li>
-                        Via tweets at my personal <a href="https://twitter.com/Sencer_H" target="_blank">twitter account</a>
+                        Via tweets at my personal <a href="https://twitter.com/Sencer_H" target="_blank">twitter
+                        account</a>
                     </li>
                     <li>
                         Via Telegram messages of <a href="https://t.me/usdtryath_bot">@usdtryath_bot</a>
@@ -151,7 +229,8 @@
                 </ul>
 
                 <p style="width: 300px; margin-left: auto; margin-right: auto;">
-                    You can checkout code base from <a href="https://github.com/RecNes/ath_status">GitHub</a> and give a star if you like it.
+                    You can checkout code base from <a href="https://github.com/RecNes/ath_status">GitHub</a> and give a
+                    star if you like it.
                 </p>
             </div>
         </div>

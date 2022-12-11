@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from all_time_high.api import to_telegram, to_twitter
 from all_time_high.models import AllTimeHigh, NotificationSetting, OneUnitDropped
