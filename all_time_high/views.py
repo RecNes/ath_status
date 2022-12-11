@@ -57,8 +57,8 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
 
     latest_rates = {
         "google_rate": from_google_exchange_rates(**kwargs),
-        "oxr_rate": from_open_exchange_rates(**kwargs),
-        "abstractapi_rate": from_abstractapi_exchange_rates(**kwargs),
+        # "oxr_rate": from_open_exchange_rates(**kwargs),
+        # "abstractapi_rate": from_abstractapi_exchange_rates(**kwargs),
     }
 
     highest_rate = get_higher_rate(latest_rates)
