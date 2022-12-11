@@ -128,7 +128,7 @@ class ExchangeGraphView(ListAPIView):
         This view is return a list of all the rates of selected exchange in date range.
         """
         date_range_end = timezone.now()
-        date_range_start = date_range_end - timedelta(days=settings.GRAPH_DATE_RANGE)
+        date_range_start = date_range_end - timedelta(hours=settings.GRAPH_DATE_RANGE)
         exchange_currency = ExchangeCurrency.objects.prefetch_related("rates").get(pk=self.kwargs["pk"])
         exchange_rates = exchange_currency.rates.filter(
             record_date__gte=date_range_start,
