@@ -105,7 +105,7 @@ class ExchangeRate(models.Model):
     )
 
     def __str__(self):
-        return _("Güncel Kur:") + f" {self.exchange_rate}"
+        return _("Güncel Kur:") + f"{self.currency} {self.exchange_rate} {self.record_date.strftime('%d/%m/%Y %H:%M:%S %Z')}"
 
     class Meta:
         verbose_name = _("Kur Oranı")
