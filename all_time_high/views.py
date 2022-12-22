@@ -3,11 +3,12 @@ from decimal import Decimal
 
 from django.shortcuts import render
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
-from all_time_high.api import from_google_exchange_rates, from_open_exchange_rates, from_abstractapi_exchange_rates
+from all_time_high.api import from_google_exchange_rates
 from all_time_high.models import ExchangeCurrency, AllTimeHigh, OneUnitDropped, ExchangeRate
 from all_time_high.serializers import ExchangeRateSerializer
 from ath import settings
@@ -63,7 +64,13 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
 
     highest_rate = get_higher_rate(latest_rates)
     lowest_rate = get_lowest_rate(latest_rates)
-    if lowest_rate == 0:
+    if all((lowest_rate < 1, highest_rate < 1)):
+        raise ValueError(
+            _(
+                "Oranlar geçerli değil. En düşük: %(lowest_rate)s / En yüksek: %(highest_rate)s"
+            ) % (lowest_rate, highest_rate)
+        )
+    if lowest_rate < 1 <= highest_rate:
         lowest_rate = highest_rate
 
     currency, created = ExchangeCurrency.objects.get_or_create(
