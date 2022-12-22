@@ -72,6 +72,12 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
         )
     if lowest_rate < 1 <= highest_rate:
         lowest_rate = highest_rate
+    if lowest_rate < 1:
+        raise ValueError(
+            _(
+                "Oranlar geçerli değil. En düşük: %(lowest_rate)s / En yüksek: %(highest_rate)s"
+            ) % (lowest_rate, highest_rate)
+        )
 
     currency, created = ExchangeCurrency.objects.get_or_create(
         base=from_currency.lower(),
