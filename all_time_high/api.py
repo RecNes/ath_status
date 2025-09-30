@@ -1,7 +1,7 @@
 import json
-
 import requests
 import tweepy
+from decimal import Decimal
 from django.conf import settings
 from django.utils import timezone
 from google_currency import convert
@@ -133,4 +133,62 @@ def from_abstractapi_exchange_rates(from_currency="usd", to_currency="try", curr
         json_response = requests.get(url, params=payload)
         content = json_response.json()
         rate = content["exchange_rates"][to_currency.upper()]
+    return rate
+
+
+def from_exchangerateapi_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
+    """
+    Fetches exchange rate from exchangerate-api.com
+    Docs: https://www.exchangerate-api.com/docs/overview
+
+    :param from_currency:
+    :param to_currency:
+    :param currency_amount:
+    :return:
+    """
+    rate = None
+    try:
+        url = (
+            f"https://v6.exchangerate-api.com/v6/"
+            f"{settings.EXCHANGERATEAPI_API_KEY}/pair/"
+            f"{from_currency.upper()}/{to_currency.upper()}"
+        )
+        response = requests.get(url)
+        data = response.json()
+        if response.status_code == 200 and "conversion_rate" in data:
+            rate = (
+                Decimal(str(data["conversion_rate"])) *
+                Decimal(str(currency_amount))
+            )
+    except Exception:
+        pass
+    return rate
+
+
+def from_frankfurter_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
+    """
+    Fetches exchange rate from frankfurter.dev
+    Docs: https://www.frankfurter.app/docs
+
+    :param from_currency:
+    :param to_currency:
+    :param currency_amount:
+    :return:
+    """
+    rate = None
+    try:
+        url = (
+            f"https://api.frankfurter.app/latest?amount={currency_amount}"
+            f"&from={from_currency.upper()}&to={to_currency.upper()}"
+        )
+        response = requests.get(url)
+        data = response.json()
+        if (
+            response.status_code == 200 and
+            "rates" in data and
+            to_currency.upper() in data["rates"]
+        ):
+            rate = Decimal(str(data["rates"][to_currency.upper()]))
+    except Exception:
+        pass
     return rate

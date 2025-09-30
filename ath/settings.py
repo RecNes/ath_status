@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+from math import e
 import environ
 import os.path
 from pathlib import Path
@@ -134,6 +135,7 @@ Path(STATIC_ROOT).mkdir(parents=True, exist_ok=True)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+EXCHANGERATEAPI_API_KEY = env("EXCHANGERATEAPI_API_KEY")
 OPEN_EXCHANGE_RATES = env("OPEN_EXCHANGE_RATES")
 ABSTRACTAPI_API_KEY = env("ABSTRACTAPI_API_KEY")
 
