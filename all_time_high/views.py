@@ -8,7 +8,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
-from all_time_high.api import from_google_exchange_rates
+from all_time_high.api import from_exchangerateapi_exchange_rates, from_frankfurter_exchange_rates
 from all_time_high.models import ExchangeCurrency, AllTimeHigh, OneUnitDropped, ExchangeRate
 from all_time_high.serializers import ExchangeRateSerializer
 from ath import settings
@@ -57,9 +57,11 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
     }
 
     latest_rates = {
-        "google_rate": from_google_exchange_rates(**kwargs),
+        # "google_rate": from_google_exchange_rates(**kwargs),
         # "oxr_rate": from_open_exchange_rates(**kwargs),
         # "abstractapi_rate": from_abstractapi_exchange_rates(**kwargs),
+        "exchangerateapi_rate": from_exchangerateapi_exchange_rates(**kwargs),
+        "frankfurter_rate": from_frankfurter_exchange_rates(**kwargs),
     }
 
     highest_rate = get_higher_rate(latest_rates)
@@ -67,16 +69,16 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
     if all((lowest_rate < 1, highest_rate < 1)):
         raise ValueError(
             _(
-                "Oranlar geçerli değil. En düşük: %(lowest_rate)s / En yüksek: %(highest_rate)s"
-            ) % (lowest_rate, highest_rate)
+                f"Oranlar geçerli değil. En düşük: {str(lowest_rate)} / En yüksek: {str(highest_rate)}"
+            )
         )
     if lowest_rate < 1 <= highest_rate:
         lowest_rate = highest_rate
     if lowest_rate < 1:
         raise ValueError(
             _(
-                "Oranlar geçerli değil. En düşük: %(lowest_rate)s / En yüksek: %(highest_rate)s"
-            ) % (lowest_rate, highest_rate)
+                f"Oranlar geçerli değil. En düşük: {str(lowest_rate)} / En yüksek: {str(highest_rate)}"
+            )
         )
 
     currency, created = ExchangeCurrency.objects.get_or_create(
