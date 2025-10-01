@@ -57,6 +57,8 @@ class Command(BaseCommand):
                 except Exception as e:
                     if 'duplicate key value violates unique constraint' in str(e):
                         self.stdout.write(self.style.WARNING(f"Skipped duplicate in {table}: {e}"))
+                    if 'violates foreign key constraint' in str(e):
+                        self.stdout.write(self.style.WARNING(f"Skipped {table} ID {obj.pk}: missing FK, set to NULL."))
                     else:
                         raise
 
