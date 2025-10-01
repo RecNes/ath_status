@@ -17,5 +17,15 @@ class Command(BaseCommand):
             with transaction.atomic(using='default'):
                 for obj in objects:
                     obj.pk = None  # Avoid PK collision
+                    for field in model._meta.fields:
+                        if field.is_relation and getattr(obj, field.name, None):
+                            rel_model = field.related_model
+                            rel_pk = getattr(obj, field.name)
+                            if rel_pk and not rel_model.objects.using('default').filter(pk=rel_pk.pk if hasattr(rel_pk, 'pk') else rel_pk).exists():
+                                self.stdout.write(self.style.WARNING(
+                                    f"Missing FK for {table}.{field.name}={rel_pk}, set to NULL."
+                                ))
+                                setattr(obj, field.name, None)
                     obj.save(using='default')
+        self.stdout.write(self.style.SUCCESS('Migration completed!'))
         self.stdout.write(self.style.SUCCESS('Migration completed!'))
