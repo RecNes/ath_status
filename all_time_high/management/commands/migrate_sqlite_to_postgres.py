@@ -10,7 +10,24 @@ class Command(BaseCommand):
         postgres = connections['default']
         models = apps.get_models()
         self.stdout.write(self.style.WARNING('Starting migration from sqlite to postgresql...'))
+
+        # 1. Migrate users and related tables first
+        user_models = [
+            m for m in models if m._meta.app_label == 'auth' or m._meta.db_table.startswith('auth_')
+        ]
+        for model in user_models:
+            table = model._meta.db_table
+            self.stdout.write(f'Transferring USERS: {table}...')
+            objects = model.objects.using('sqlite').all()
+            with transaction.atomic(using='default'):
+                for obj in objects:
+                    obj.pk = None
+                    obj.save(using='default')
+
+        # 2. Migrate all other models
         for model in models:
+            if model in user_models:
+                continue
             table = model._meta.db_table
             self.stdout.write(f'Transferring {table}...')
             objects = model.objects.using('sqlite').all()
