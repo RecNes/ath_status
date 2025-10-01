@@ -1,3 +1,4 @@
+from rest_framework.views import APIView
 from datetime import timedelta
 from decimal import Decimal
 
@@ -155,3 +156,18 @@ class ExchangeGraphView(ListAPIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
+
+
+class BulkExchangeGraphView(APIView):
+    def get(self, request):
+        date_range_end = timezone.now()
+        date_range_start = date_range_end - timedelta(hours=settings.GRAPH_DATE_RANGE)
+        result = {}
+        for currency in ExchangeCurrency.objects.all():
+            rates = currency.rates.filter(
+                record_date__gte=date_range_start,
+                record_date__lt=date_range_end,
+            )
+            serializer = ExchangeRateSerializer(rates, many=True)
+            result[str(currency.id)] = serializer.data
+        return Response(result)

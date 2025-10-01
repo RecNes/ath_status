@@ -129,44 +129,40 @@
             return rateList;
         }
 
-        function getChartData(id) {
-            let chartUrl = '/get-chart-data/' + id;
-            fetch(chartUrl)
-            .then(response => response.json())
-            .then(data => {
-                let ctx = document.getElementById(`${id}-currency-chart`);
-                let xValues = getXValues(data);
-                let yValues = getYValues(data);
-                let chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: xValues,
-                        datasets: [{
-                            data: yValues
-                        }]
-                    },
-                    options: {
-                        legend: {
-                            display: false
-                        },
-                        scales: {
-                            xAxes: [{
-                                ticks: {
-                                    display: false
-                                }
-                            }]
-                        }
-                    }
-                });
-                chart.update();
-            });
-        }
-
         function drawCharts() {
-            let chartCanvases = document.getElementsByClassName('currency-chart');
-            Array.prototype.forEach.call(chartCanvases, function(item) {
-                getChartData(item.dataset.id);
-            });
+            fetch('/get-all-chart-data/')
+                .then(response => response.json())
+                .then(allData => {
+                    let chartCanvases = document.getElementsByClassName('currency-chart');
+                    Array.prototype.forEach.call(chartCanvases, function(item) {
+                        let id = item.dataset.id;
+                        let data = allData[id] || [];
+                        let xValues = getXValues(data);
+                        let yValues = getYValues(data);
+                        let chart = new Chart(item, {
+                            type: 'line',
+                            data: {
+                                labels: xValues,
+                                datasets: [{
+                                    data: yValues
+                                }]
+                            },
+                            options: {
+                                legend: {
+                                    display: false
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            display: false
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                        chart.update();
+                    });
+                });
         }
     </script>
 </head>
