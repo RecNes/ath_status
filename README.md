@@ -1,4 +1,4 @@
-![Logo](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTpFp7xujian_jIJCSdxZyLAKfpI98Ol6ATg&usqp=CAU)
+![Logo](assets/logo.png)
 
 [![Django CI](https://github.com/RecNes/ath_status/actions/workflows/django.yml/badge.svg?branch=main)](https://github.com/RecNes/ath_status/actions/workflows/django.yml)
 
