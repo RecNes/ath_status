@@ -11,7 +11,25 @@ class Command(BaseCommand):
         models = apps.get_models()
         self.stdout.write(self.style.WARNING('Starting migration from sqlite to postgresql...'))
 
-        # 1. Migrate users and related tables first
+
+        # 1. Migrate django_content_type first
+        ct_models = [m for m in models if m._meta.db_table == 'django_content_type']
+        for model in ct_models:
+            table = model._meta.db_table
+            self.stdout.write(f'Transferring CONTENT TYPES: {table}...')
+            objects = model.objects.using('sqlite').all()
+            for obj in objects:
+                obj.pk = None
+                try:
+                    with transaction.atomic(using='default'):
+                        obj.save(using='default')
+                except Exception as e:
+                    if 'duplicate key value violates unique constraint' in str(e):
+                        self.stdout.write(self.style.WARNING(f"Skipped duplicate in {table}: {e}"))
+                    else:
+                        raise
+
+        # 2. Migrate users and related tables
         user_models = [
             m for m in models if m._meta.app_label == 'auth' or m._meta.db_table.startswith('auth_')
         ]
