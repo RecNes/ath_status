@@ -20,6 +20,18 @@ class Command(BaseCommand):
             objects = model.objects.using('sqlite').all()
             for obj in objects:
                 obj.pk = None
+                # Check for missing FK (e.g. content_type_id)
+                skip = False
+                for field in model._meta.fields:
+                    if field.is_relation and getattr(obj, field.name, None):
+                        rel_model = field.related_model
+                        rel_pk = getattr(obj, field.name)
+                        if rel_pk and not rel_model.objects.using('default').filter(pk=rel_pk.pk if hasattr(rel_pk, 'pk') else rel_pk).exists():
+                            self.stdout.write(self.style.WARNING(f"Skipped {table} ID {obj.pk}: missing FK {field.name}={rel_pk}"))
+                            skip = True
+                            break
+                if skip:
+                    continue
                 try:
                     with transaction.atomic(using='default'):
                         obj.save(using='default')
