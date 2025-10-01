@@ -6,16 +6,24 @@
     <title>All Times High Rates</title>
 
     <style>
+        a {
+            color: #e9f3ffff;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        a:hover {
+            color: #b8d6ffff;
+        }
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
 
         body {
-            background-color: #E2E4FF;
+            background-color: #e3eafc;
             font-family: 'Open Sans', sans-serif;
         }
 
         .container {
             width: 100%;
-            background-color: #E2E4FF;
+            background-color: #e3eafc;
             display: flex;
             justify-content: center;
         }
@@ -23,12 +31,13 @@
         .centered {
             width: 1280px;
             height: 720px;
-            background-color: #7780F1;
+            background-color: #3a5fc8;
             border-radius: 30px;
             padding: 10px;
+            box-shadow: 0 4px 24px 0 #b6c6e6;
         }
         .inner-left {
-            background-color: white;
+            background-color: #f7faff;
             width: 70%;
             height: 100%;
             border-radius: 25px;
@@ -37,7 +46,7 @@
             float: left;
         }
         .inner-right {
-            background-color: #7780F1;
+            background-color: #3a5fc8;
             width: 29%;
             height: 100%;
             border-radius: 25px;
@@ -55,19 +64,32 @@
             width: 100%;
         }
         .box_right h2 {
-            color: aliceblue;
+            color: #ffffff;
             text-align: center;
-            background-color: #9099FF;
-            height: 100px;
+            background-color: #4b6ed6;
+            height: 60px;
             border-radius: 25px;
             margin-top: 10px;
+            box-shadow: 0 2px 12px 0 #b6c6e6;
+        }
+        .box_right h2 span {
+             padding-top: 5px;
         }
         .box_left table thead tr td {
-            border: #D6D9F2 1px solid;
-            background-color: #F7F6FA;
+            border: #b6c6e6 1px solid;
+            background-color: #e3eafc;
             border-radius: 30px;
+            color: #3a5fc8;
+            padding-left: 5px;
+            padding-right: 5px;
         }
-        /* color scheme https://dribbble.com/shots/9684776-Cryptocurrency-Exchange-Design */
+        .box_left table tbody tr td {
+            color: #2d3e5e;
+        }
+        .box_left table {
+            background-color: #f7faff;
+        }
+        /* color scheme: logo blue #3a5fc8, accent #4b6ed6, background #e3eafc, white #f7faff, shadow #b6c6e6, text #2d3e5e */
 
     </style>
 
@@ -206,8 +228,12 @@
         <div class="inner-right">
             <div class="box_right" style="padding: 0 10px; color: white;">
                 <h2>
-                    <br>
-                    ALL TIMES HIGH RATES
+                    <span style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        <span>ALL TIMES HIGH RATES</span>
+                        <span>
+                            <img src="{% static 'logo.png' %}" alt="Logo" style="height: 40px; vertical-align: middle; border-radius: 8px; margin-left: 10px;">
+                        </span>
+                    </span>
                 </h2>
                 <p style="width: 300px; margin-left: auto; margin-right: auto;">
                     <span>
