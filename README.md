@@ -1,4 +1,4 @@
-![Logo](assets/logo.png)
+<img src="assets/logo.png" alt="Project Logo" width="200"/>
 
 [![Django CI](https://github.com/RecNes/ath_status/actions/workflows/django.yml/badge.svg?branch=main)](https://github.com/RecNes/ath_status/actions/workflows/django.yml)
 
