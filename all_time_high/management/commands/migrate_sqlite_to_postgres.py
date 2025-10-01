@@ -22,7 +22,13 @@ class Command(BaseCommand):
             with transaction.atomic(using='default'):
                 for obj in objects:
                     obj.pk = None
-                    obj.save(using='default')
+                    try:
+                        obj.save(using='default')
+                    except Exception as e:
+                        if 'duplicate key value violates unique constraint' in str(e):
+                            self.stdout.write(self.style.WARNING(f"Skipped duplicate in {table}: {e}"))
+                        else:
+                            raise
 
         # 2. Migrate all other models
         for model in models:
@@ -43,6 +49,12 @@ class Command(BaseCommand):
                                     f"Missing FK for {table}.{field.name}={rel_pk}, set to NULL."
                                 ))
                                 setattr(obj, field.name, None)
-                    obj.save(using='default')
+                    try:
+                        obj.save(using='default')
+                    except Exception as e:
+                        if 'duplicate key value violates unique constraint' in str(e):
+                            self.stdout.write(self.style.WARNING(f"Skipped duplicate in {table}: {e}"))
+                        else:
+                            raise
         self.stdout.write(self.style.SUCCESS('Migration completed!'))
         self.stdout.write(self.style.SUCCESS('Migration completed!'))
