@@ -141,33 +141,50 @@ class ExchangeGraphView(ListAPIView):
 
     def get_queryset(self):
         """
-        This view is return a list of all the rates of selected exchange in date range.
+        This view returns the highest rate per day for the selected exchange in the last 30 days.
         """
+        from django.db.models import Max
         date_range_end = timezone.now()
-        date_range_start = date_range_end - timedelta(hours=settings.GRAPH_DATE_RANGE)
+        date_range_start = date_range_end - timedelta(days=30)
         exchange_currency = ExchangeCurrency.objects.get(pk=self.kwargs["pk"])
-        exchange_rates = exchange_currency.rates.filter(
-            record_date__gte=date_range_start,
-            record_date__lt=date_range_end,
+        rates = (
+            exchange_currency.rates.filter(
+                record_date__gte=date_range_start,
+                record_date__lt=date_range_end,
+            )
+            .extra({'day': "date(record_date)"})
+            .values('day')
+            .annotate(max_rate=Max('exchange_rate'))
+            .order_by('day')
         )
-        return exchange_rates
+        return [
+            {'record_date': r['day'], 'exchange_rate': r['max_rate']} for r in rates
+        ]
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
+        return Response(queryset)
 
 
 class BulkExchangeGraphView(APIView):
     def get(self, request):
+        from django.db.models import Max
         date_range_end = timezone.now()
-        date_range_start = date_range_end - timedelta(hours=settings.GRAPH_DATE_RANGE)
+        date_range_start = date_range_end - timedelta(days=30)
         result = {}
         for currency in ExchangeCurrency.objects.all():
-            rates = currency.rates.filter(
-                record_date__gte=date_range_start,
-                record_date__lt=date_range_end,
+            rates = (
+                currency.rates.filter(
+                    record_date__gte=date_range_start,
+                    record_date__lt=date_range_end,
+                )
+                .extra({'day': "date(record_date)"})
+                .values('day')
+                .annotate(max_rate=Max('exchange_rate'))
+                .order_by('day')
             )
-            serializer = ExchangeRateSerializer(rates, many=True)
-            result[str(currency.id)] = serializer.data
+            serializer_data = [
+                {'record_date': r['day'], 'exchange_rate': r['max_rate']} for r in rates
+            ]
+            result[str(currency.id)] = serializer_data
         return Response(result)
