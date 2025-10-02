@@ -115,9 +115,12 @@
 
         function getXValues(data) {
             var dateList = [];
-            data.forEach( item => {
-                dateList.push(Date(Date.parse(item.record_date)));
-            })
+            data.forEach(item => {
+                // Format as YYYY-MM-DD for 30-day axis
+                let d = new Date(item.record_date);
+                let formatted = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                dateList.push(formatted);
+            });
             return dateList;
         }
 
@@ -144,7 +147,11 @@
                             data: {
                                 labels: xValues,
                                 datasets: [{
-                                    data: yValues
+                                    data: yValues,
+                                    borderColor: '#3a5fc8',
+                                    backgroundColor: 'rgba(58,95,200,0.08)',
+                                    pointRadius: 2,
+                                    lineTension: 0.2
                                 }]
                             },
                             options: {
@@ -153,10 +160,36 @@
                                 },
                                 scales: {
                                     xAxes: [{
+                                        type: 'category',
                                         ticks: {
+                                            autoSkip: true,
+                                            maxTicksLimit: 30,
+                                            fontColor: '#2d3e5e',
+                                            fontSize: 10
+                                        },
+                                        gridLines: {
                                             display: false
                                         }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: '#2d3e5e',
+                                            fontSize: 10
+                                        },
+                                        gridLines: {
+                                            color: '#e3eafc'
+                                        }
                                     }]
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        title: function(tooltipItems, data) {
+                                            return 'Gün: ' + tooltipItems[0].label;
+                                        },
+                                        label: function(tooltipItem, data) {
+                                            return 'ATH: ' + tooltipItem.value;
+                                        }
+                                    }
                                 }
                             }
                         });
