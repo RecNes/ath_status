@@ -1,7 +1,7 @@
 <img src="assets/logo.png" alt="Project Logo" width="100"/>&nbsp;&nbsp;&nbsp;&nbsp;[![Django CI](https://github.com/RecNes/ath_status/actions/workflows/django.yml/badge.svg?branch=main)](https://github.com/RecNes/ath_status/actions/workflows/django.yml)
 
 
-# USD TRY exchange ATH
+# ATH Status
 - [Home Page](http://athstatus.recnes.com)
 
 Collects All-Time high value of exchange rates and send message over telegram if last ATH were exceeded.
