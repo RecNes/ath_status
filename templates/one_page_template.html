@@ -101,32 +101,69 @@
             if (!document.cookie) {
                 return null;
             }
-
             const xsrfCookies = document.cookie.split(';')
-                .map(c => c.trim())
+                .map(c => c.trim());
+            // ... Eğer başka bir işlem gerekiyorsa buraya ekleyin ...
+        }
+
+        function getLast30Days() {
+            let days = [];
+            let now = new Date();
+            for (let i = 29; i >= 0; i--) {
+                let d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                // Format as YYYY-MM-DD (backend ile tam uyumlu)
+                let yyyy = d.getFullYear();
+                let mm = String(d.getMonth() + 1).padStart(2, '0');
+                let dd = String(d.getDate()).padStart(2, '0');
+                let formatted = `${yyyy}-${mm}-${dd}`;
+                days.push(formatted);
+            }
+            return days;
+        }
+
         function getXValues(data) {
-            var dateList = [];
-            data.forEach(item => {
-                // Format as YYYY-MM-DD for 30-day axis
-                let d = new Date(item.record_date);
-                let formatted = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                dateList.push(formatted);
-            });
-            return dateList;
+            // Her zaman son 30 günü döndür
+            return getLast30Days();
         }
 
         function getYValues(data) {
-            var rateList = [];
-            data.forEach( item => {
-                rateList.push(Number(item.exchange_rate));
-            })
+            // Eksik günler için son değeri veya 0 ekle
+            let days = getLast30Days();
+            let ratesByDay = {};
+            data.forEach(item => {
+                // Backend'den gelen tarih formatı ile tam eşleşme
+                let d = new Date(item.record_date);
+                let yyyy = d.getFullYear();
+                let mm = String(d.getMonth() + 1).padStart(2, '0');
+                let dd = String(d.getDate()).padStart(2, '0');
+                let formatted = `${yyyy}-${mm}-${dd}`;
+                ratesByDay[formatted] = Number(item.exchange_rate);
+            });
+            let rateList = [];
+            let lastRate = 0;
+            days.forEach(day => {
+                if (ratesByDay.hasOwnProperty(day)) {
+                    lastRate = ratesByDay[day];
+                    rateList.push(lastRate);
+                } else {
+                    // Eksik gün için son değeri veya 0 ekle
+                    rateList.push(lastRate);
+                }
+            });
             return rateList;
         }
 
         function drawCharts() {
             fetch('/get-all-chart-data/')
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('get-all-chart-data endpoint error:', response.status, response.statusText);
+                        throw new Error('get-all-chart-data endpoint error');
+                    }
+                    return response.json();
+                })
                 .then(allData => {
+                    console.log('get-all-chart-data response:', allData);
                     let chartCanvases = document.getElementsByClassName('currency-chart');
                     Array.prototype.forEach.call(chartCanvases, function(item) {
                         let id = item.dataset.id;
@@ -186,6 +223,9 @@
                         });
                         chart.update();
                     });
+                })
+                .catch(error => {
+                    console.error('fetch get-all-chart-data error:', error);
                 });
         }
     </script>
