@@ -33,7 +33,7 @@ git pull
 cp -fab .env_vars.txt env_vars.txt
 source env/bin/activate
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install --upgrade -r requirements.txt
 python manage.py collectstatic --noinput
 python manage.py migrate --noinput
 echo >&2 "Restarting service."
