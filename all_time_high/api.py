@@ -1,3 +1,5 @@
+import os
+import datetime
 import json
 import requests
 import tweepy
@@ -6,6 +8,10 @@ from django.conf import settings
 from django.utils import timezone
 from google_currency import convert
 from telegram_notifier import TelegramNotifier
+
+
+EXCHANGERATEAPI_COUNTER_FILE = os.path.join(os.path.dirname(__file__), "exchangerateapi_counter.txt")
+EXCHANGERATEAPI_LAST_REQUEST_FILE = os.path.join(os.path.dirname(__file__), "exchangerateapi_last_request.txt")
 
 
 def to_twitter(message):
@@ -136,17 +142,69 @@ def from_abstractapi_exchange_rates(from_currency="usd", to_currency="try", curr
     return rate
 
 
+def _get_exchangerateapi_counter():
+    today = datetime.date.today()
+    try:
+        with open(EXCHANGERATEAPI_COUNTER_FILE, "r") as f:
+            line = f.read().strip()
+            if line:
+                date_str, count_str = line.split(",")
+                last_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+                count = int(count_str)
+                # Reset counter if today is 29th or month changed
+                if today.day == 29 or today.month != last_date.month:
+                    return today, 0
+                return last_date, count
+    except Exception:
+        pass
+    return today, 0
+
+
+def _get_exchangerateapi_last_request():
+    try:
+        with open(EXCHANGERATEAPI_LAST_REQUEST_FILE, "r") as f:
+            line = f.read().strip()
+            if line:
+                return datetime.datetime.strptime(line, "%Y-%m-%d %H:%M:%S")
+    except Exception:
+        pass
+    return None
+
+
+def _set_exchangerateapi_last_request(dt):
+    with open(EXCHANGERATEAPI_LAST_REQUEST_FILE, "w") as f:
+        f.write(dt.strftime("%Y-%m-%d %H:%M:%S"))
+
+
+def _set_exchangerateapi_counter(date, count):
+    with open(EXCHANGERATEAPI_COUNTER_FILE, "w") as f:
+        f.write(f"{date.isoformat()},{count}")
+
+
 def from_exchangerateapi_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
     """
-    Fetches exchange rate from exchangerate-api.com
+    Fetches exchange rate from exchangerate-api.com with monthly, daily and hourly limit
     Docs: https://www.exchangerate-api.com/docs/overview
-
-    :param from_currency:
-    :param to_currency:
-    :param currency_amount:
-    :return:
     """
     rate = None
+    now = datetime.datetime.now()
+    today = now.date()
+    last_date, count = _get_exchangerateapi_counter()
+
+    days_in_month = (datetime.date(today.year, today.month % 12 + 1, 1) - datetime.timedelta(days=1)).day
+    daily_limit = int(1500 / days_in_month)
+    hourly_interval = int(24 / daily_limit) if daily_limit else 24
+
+    last_request = _get_exchangerateapi_last_request()
+    if last_request:
+        delta = now - last_request
+        if delta.total_seconds() < hourly_interval * 3600:
+            return None
+
+    if today.day == 29 or today.month != last_date.month:
+        count = 0
+    if count >= 1500:
+        return None
     try:
         url = (
             f"https://v6.exchangerate-api.com/v6/"
@@ -160,6 +218,8 @@ def from_exchangerateapi_exchange_rates(from_currency="usd", to_currency="try", 
                 Decimal(str(data["conversion_rate"])) *
                 Decimal(str(currency_amount))
             )
+            _set_exchangerateapi_counter(today, count + 1)
+            _set_exchangerateapi_last_request(now)
     except Exception:
         pass
     return rate
