@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from all_time_high.management.commands import notify
-from all_time_high.models import AllTimeHigh, OneUnitDropped
+from all_time_high.models import AllTimeHigh, DailyLowestPrice
 
 
 @receiver(post_save, sender=AllTimeHigh, dispatch_uid="post_ath_message")
@@ -20,10 +20,10 @@ def post_ath_message(sender, instance, raw, *args, **kwargs):
     notify.post_ath_message(notification_settings)
 
 
-@receiver(post_save, sender=OneUnitDropped, dispatch_uid="post_oud_message")
+@receiver(post_save, sender=DailyLowestPrice, dispatch_uid="post_oud_message")
 def post_oud_message(sender, instance, raw, *args, **kwargs):
     """
-    Post one unit dropped message via signal
+    Post daily lowest price message via signal
     :param sender:
     :param instance:
     :param raw:

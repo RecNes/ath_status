@@ -22,7 +22,9 @@ env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
 )
-environ.Env.read_env(os.path.join(BASE_DIR, 'env_vars.txt'))
+
+file_name = 'env_vars_local.txt' if os.path.exists(os.path.join(BASE_DIR, 'env_vars_local.txt')) else 'env_vars.txt'
+environ.Env.read_env(os.path.join(BASE_DIR, file_name))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/

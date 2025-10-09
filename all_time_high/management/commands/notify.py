@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from all_time_high.api import to_telegram, to_twitter
-from all_time_high.models import AllTimeHigh, NotificationSetting, OneUnitDropped
+from all_time_high.models import AllTimeHigh, NotificationSetting, DailyLowestPrice
 
 
 def create_ath_message(instance):
@@ -17,12 +17,12 @@ def create_ath_message(instance):
     if instance.currency.target_symbol:
         target_currency_symbol = instance.currency.target_symbol
 
-    return f'''⁃ Yeni ATH:
- 
-{base_currency_symbol} 1.00 = {instance.exchange_rate} {target_currency_symbol} 
+    return f"""⁃ Yeni ATH:
+
+{base_currency_symbol} 1.00 = {instance.daily_lowest_price} {target_currency_symbol}
 
 ◦ ATH: Tüm zamanların en yükseği
-◦ Otomatik mesaj https://athstatus.recnes.com/'''
+◦ Otomatik mesaj https://athstatus.recnes.com/"""
 
 
 def create_oud_message(instance):
@@ -39,12 +39,12 @@ def create_oud_message(instance):
     if instance.currency.target_symbol:
         target_currency_symbol = instance.currency.target_symbol
 
-    return f'''⁃ 1 Birimlik Düşüş Yaşandı:
- 
-{base_currency_symbol} 1.00 = {instance.exchange_rate} {target_currency_symbol}
+    return f"""⁃ 1 Birimlik Düşüş Yaşandı:
+
+{base_currency_symbol} 1.00 = {instance.daily_lowest_price} {target_currency_symbol}
 
 ◦ Bu mesaj otomatik olarak oluşturulmuştur.
-◦ Otomatik mesaj https://athstatus.recnes.com/'''
+◦ Otomatik mesaj https://athstatus.recnes.com/"""
 
 
 def is_certain_minutes_passed_from_last_notification(instance, minutes=5):
@@ -76,7 +76,10 @@ def is_it_time(instance, interval):
     """
     _is_it_time = False
     if instance.last_notification_date:
-        _is_it_time = instance.last_notification_date + timedelta(minutes=interval) < timezone.now()
+        _is_it_time = (
+            instance.last_notification_date + timedelta(minutes=interval)
+            < timezone.now()
+        )
     return _is_it_time
 
 
@@ -92,7 +95,9 @@ def send_notifications(instance, notification_settings, message):
         return
 
     notify = notification_settings.is_telegram_enabled
-    its_time = is_it_time(instance, notification_settings.telegram_notification_interval)
+    its_time = is_it_time(
+        instance, notification_settings.telegram_notification_interval
+    )
     if notify and its_time:
         to_telegram(message)
 
@@ -106,26 +111,43 @@ def send_notifications(instance, notification_settings, message):
     instance.save(update_fields=["notify", "last_notification_date"])
 
 
-def post_ath_message(notification_settings):
+def post_ath_messages_for_recent_changes(notification_settings):
     """
-    Post the ath message
+    Son yarım saatte değişen ve henüz bildirim gönderilmemiş AllTimeHigh kayıtları için bildirim gönderir.
     :param notification_settings:
     :return:
     """
-    instance = AllTimeHigh.objects.last()
-    message = create_ath_message(instance)
-    send_notifications(instance, notification_settings, message)
+    now = timezone.now()
+    half_hour_ago = now - timedelta(minutes=30)
+    queryset = AllTimeHigh.objects.filter(update_date__gte=half_hour_ago, notify=True)
+    for instance in queryset:
+        # Her bir instance için, son bildirim tarihi update_date'den önceyse bildir
+        if (
+            not instance.last_notification_date
+            or instance.last_notification_date < instance.update_date
+        ):
+            message = create_ath_message(instance)
+            send_notifications(instance, notification_settings, message)
 
 
-def post_oud_message(notification_settings):
+def post_oud_messages_for_recent_changes(notification_settings):
     """
-    Post the one unit dropped message
+    Son yarım saatte değişen ve henüz bildirim gönderilmemiş DailyLowestPrice kayıtları için bildirim gönderir.
     :param notification_settings:
     :return:
     """
-    instance = OneUnitDropped.objects.last()
-    message = create_oud_message(instance)
-    send_notifications(instance, notification_settings, message)
+    now = timezone.now()
+    half_hour_ago = now - timedelta(minutes=30)
+    queryset = DailyLowestPrice.objects.filter(
+        update_date__gte=half_hour_ago, notify=True
+    )
+    for instance in queryset:
+        if (
+            not instance.last_notification_date
+            or instance.last_notification_date < instance.update_date
+        ):
+            message = create_oud_message(instance)
+            send_notifications(instance, notification_settings, message)
 
 
 class Command(BaseCommand):
@@ -133,5 +155,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         notification_settings = get_notification_settings()
-        post_ath_message(notification_settings)
-        post_oud_message(notification_settings)
+        post_ath_messages_for_recent_changes(notification_settings)
+        post_oud_messages_for_recent_changes(notification_settings)

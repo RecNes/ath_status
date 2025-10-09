@@ -133,3 +133,7 @@ dmypy.json
 .github/
 .vscode/
 
+env_vars_local.txt
+
+.flake8
+mypy.ini

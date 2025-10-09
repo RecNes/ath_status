@@ -6,232 +6,21 @@
     <title>All Times High Rates</title>
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
 
-    <style>
-        a {
-            color: #e9f3ffff;
-            text-decoration: underline;
-            transition: color 0.2s;
-        }
-        a:hover {
-            color: #b8d6ffff;
-        }
-        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
-
-        body {
-            background-color: #eaf2fb;
-            font-family: 'Open Sans', sans-serif;
-        }
-
-        .container {
-            width: 100%;
-            background-color: #eaf2fb;
-            display: flex;
-            justify-content: center;
-        }
-
-        .centered {
-            width: 1280px;
-            height: 720px;
-            background-color: #4169e1;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 4px 24px 0 #b6c6e6;
-        }
-        .inner-left {
-            background-color: #fafdff;
-            width: 70%;
-            height: 100%;
-            border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            float: left;
-        }
-        .inner-right {
-            background-color: #4169e1;
-            width: 29%;
-            height: 100%;
-            border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            float: right;
-        }
-        .box_left {
-            margin: 10px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-        .box_right {
-            width: 100%;
-        }
-        .box_right h2 {
-            color: #ffffff;
-            text-align: center;
-            background-color: #2e4fa3;
-            height: 60px;
-            border-radius: 5px;
-            margin-top: 10px;
-            box-shadow: 0 2px 12px 0 #b6c6e6;
-        }
-        .box_right h2 span {
-             padding-top: 5px;
-        }
-        .box_left table thead tr td {
-            border: #b6c6e6 1px solid;
-            background-color: #eaf2fb;
-            border-radius: 5px;
-            color: #4169e1;
-            padding-left: 5px;
-            padding-right: 5px;
-        }
-        .box_left table tbody tr td {
-            color: #2e4fa3;
-        }
-        .box_left table {
-            background-color: #fafdff;
-        }
-        /* color scheme: logo blue #4169e1, accent #2e4fa3, background #eaf2fb, white #fafdff, shadow #b6c6e6, text #2e4fa3 */
-
-    </style>
+    <link rel="stylesheet" href="{% static 'ath_status/main.css' %}">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="{% static 'ath_status/main.js' %}"></script>
 
-    <script type="text/javascript">
-        function getCookie(name) {
-            if (!document.cookie) {
-                return null;
-            }
-            const xsrfCookies = document.cookie.split(';')
-                .map(c => c.trim());
-            // ... Eğer başka bir işlem gerekiyorsa buraya ekleyin ...
-        }
-
-        function getLast30Days() {
-            let days = [];
-            let now = new Date();
-            for (let i = 29; i >= 0; i--) {
-                let d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-                // Format as YYYY-MM-DD (backend ile tam uyumlu)
-                let yyyy = d.getFullYear();
-                let mm = String(d.getMonth() + 1).padStart(2, '0');
-                let dd = String(d.getDate()).padStart(2, '0');
-                let formatted = `${yyyy}-${mm}-${dd}`;
-                days.push(formatted);
-            }
-            return days;
-        }
-
-        function getXValues(data) {
-            // Her zaman son 30 günü döndür
-            return getLast30Days();
-        }
-
-        function getYValues(data) {
-            // Eksik günler için son değeri veya 0 ekle
-            let days = getLast30Days();
-            let ratesByDay = {};
-            data.forEach(item => {
-                // Backend'den gelen tarih formatı ile tam eşleşme
-                let d = new Date(item.record_date);
-                let yyyy = d.getFullYear();
-                let mm = String(d.getMonth() + 1).padStart(2, '0');
-                let dd = String(d.getDate()).padStart(2, '0');
-                let formatted = `${yyyy}-${mm}-${dd}`;
-                ratesByDay[formatted] = Number(item.exchange_rate);
-            });
-            let rateList = [];
-            let lastRate = 0;
-            days.forEach(day => {
-                if (ratesByDay.hasOwnProperty(day)) {
-                    lastRate = ratesByDay[day];
-                    rateList.push(lastRate);
-                } else {
-                    // Eksik gün için son değeri veya 0 ekle
-                    rateList.push(lastRate);
-                }
-            });
-            return rateList;
-        }
-
-        function drawCharts() {
-            fetch('/get-all-chart-data/')
-                .then(response => {
-                    if (!response.ok) {
-                        console.error('get-all-chart-data endpoint error:', response.status, response.statusText);
-                        throw new Error('get-all-chart-data endpoint error');
-                    }
-                    return response.json();
-                })
-                .then(allData => {
-                    console.log('get-all-chart-data response:', allData);
-                    let chartCanvases = document.getElementsByClassName('currency-chart');
-                    Array.prototype.forEach.call(chartCanvases, function(item) {
-                        let id = item.dataset.id;
-                        let data = allData[id] || [];
-                        let xValues = getXValues(data);
-                        let yValues = getYValues(data);
-                        let chart = new Chart(item, {
-                            type: 'line',
-                            data: {
-                                labels: xValues,
-                                datasets: [{
-                                    data: yValues,
-                                    borderColor: '#3a5fc8',
-                                    backgroundColor: 'rgba(58,95,200,0.08)',
-                                    pointRadius: 2,
-                                    lineTension: 0.2
-                                }]
-                            },
-                            options: {
-                                legend: {
-                                    display: false
-                                },
-                                scales: {
-                                    xAxes: [{
-                                        type: 'category',
-                                        ticks: {
-                                            autoSkip: true,
-                                            maxTicksLimit: 30,
-                                            fontColor: '#2d3e5e',
-                                            fontSize: 10
-                                        },
-                                        gridLines: {
-                                            display: false
-                                        }
-                                    }],
-                                    yAxes: [{
-                                        ticks: {
-                                            fontColor: '#2d3e5e',
-                                            fontSize: 10
-                                        },
-                                        gridLines: {
-                                            color: '#e3eafc'
-                                        }
-                                    }]
-                                },
-                                tooltips: {
-                                    callbacks: {
-                                        title: function(tooltipItems, data) {
-                                            return 'Gün: ' + tooltipItems[0].label;
-                                        },
-                                        label: function(tooltipItem, data) {
-                                            return 'ATH: ' + tooltipItem.value;
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                        chart.update();
-                    });
-                })
-                .catch(error => {
-                    console.error('fetch get-all-chart-data error:', error);
-                });
-        }
-    </script>
 </head>
-<body onload="drawCharts();">
-
+<body onload="drawCharts(); startAutoRefresh();">
+    <!-- Büyük grafik modalı -->
+    <div id="big-chart-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="document.getElementById('big-chart-modal').style.display='none'">&times;</button>
+            <div id="big-chart-title"></div>
+            <canvas id="big-chart-canvas" width="1100" height="480"></canvas>
+        </div>
+    </div>
 <div class="container">
     <div class="centered">
         <div class="inner-left">
@@ -243,7 +32,7 @@
                         <td>{% trans "Currency" %}</td>
                         <td>{% trans "Current Rate" %}</td>
                         <td>{% trans "ATH Rate" %}</td>
-                        <td>{% trans "One Unit Dropped" %}</td>
+                        <td>{% trans "Günlük En Düşük Fiyat" %}</td>
                         <td>{{ graph_day_range }} {% trans " Days Graph" %}</td>
                     </tr>
                     </thead>
@@ -256,20 +45,20 @@
                             ({{ exchange_currency.base_symbol }})
                             {% endif %}
                         </td>
-                        <td title="{{ exchange_currency.rates.last.record_date }}">
+                        <td id="current-rate-{{ exchange_currency.id }}" title="{{ exchange_currency.rates.last.record_date }}">
                             {{ exchange_currency.rates.last.exchange_rate }}
                             {% if exchange_currency.target_symbol %}
                             {{ exchange_currency.target_symbol }}
                             {% endif %}
                         </td>
-                        <td title="{{ exchange_currency.alltimehigh.update_date }}">
+                        <td id="ath-rate-{{ exchange_currency.id }}" title="{{ exchange_currency.alltimehigh.update_date }}">
                             {{ exchange_currency.alltimehigh.exchange_rate }}
                             {% if exchange_currency.target_symbol %}
                             {{ exchange_currency.target_symbol }}
                             {% endif %}
                         </td>
-                        <td title="{{ exchange_currency.oneunitdropped.update_date }}">
-                            {{ exchange_currency.oneunitdropped.exchange_rate }}
+                        <td id="lowest-rate-{{ exchange_currency.id }}" title="{{ exchange_currency.dailylowestprice.update_date }}">
+                            {{ exchange_currency.dailylowestprice.daily_lowest_price }}
                             {% if exchange_currency.target_symbol %}
                             {{ exchange_currency.target_symbol }}
                             {% endif %}
@@ -317,6 +106,18 @@
                 <p style="width: 300px; margin-left: auto; margin-right: auto;">
                     You can checkout code base from <a href="https://github.com/RecNes/ath_status">GitHub</a> and give a
                     star if you like it.
+                </p>
+                <p style="width: 300px; margin-left: auto; margin-right: auto;">
+                    <br><br>
+                    <div style="width: 300px; text-align: right; margin-bottom: 8px;">
+                        <label for="update-interval" style="color: #ffffffff; font-weight: bold;">Update Interval: </label>
+                        <select id="update-interval" style="font-size: 1em; padding: 2px 8px; border-radius: 4px;">
+                            <option value="2">2 min</option>
+                            <option value="5" selected>5 min</option>
+                            <option value="10">10 min</option>
+                            <option value="30">30 min</option>
+                        </select>
+                    </div>
                 </p>
             </div>
         </div>

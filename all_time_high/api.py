@@ -10,8 +10,12 @@ from google_currency import convert
 from telegram_notifier import TelegramNotifier
 
 
-EXCHANGERATEAPI_COUNTER_FILE = os.path.join(os.path.dirname(__file__), "exchangerateapi_counter.txt")
-EXCHANGERATEAPI_LAST_REQUEST_FILE = os.path.join(os.path.dirname(__file__), "exchangerateapi_last_request.txt")
+EXCHANGERATEAPI_COUNTER_FILE = os.path.join(
+    os.path.dirname(__file__), "exchangerateapi_counter.txt"
+)
+EXCHANGERATEAPI_LAST_REQUEST_FILE = os.path.join(
+    os.path.dirname(__file__), "exchangerateapi_last_request.txt"
+)
 
 
 def to_twitter(message):
@@ -20,14 +24,8 @@ def to_twitter(message):
     :param message:
     :return:
     """
-    auth = tweepy.OAuthHandler(
-        settings.TWITTER_API_KEY,
-        settings.TWITTER_API_SEC
-    )
-    auth.set_access_token(
-        settings.TWITTER_TOKEN,
-        settings.TWITTER_TOKEN_SEC
-    )
+    auth = tweepy.OAuthHandler(settings.TWITTER_API_KEY, settings.TWITTER_API_SEC)
+    auth.set_access_token(settings.TWITTER_TOKEN, settings.TWITTER_TOKEN_SEC)
     api = tweepy.API(auth)
 
     try:
@@ -35,7 +33,7 @@ def to_twitter(message):
     except tweepy.HTTPException as error:
         for api_code in error.api_codes:
             if api_code == 187:
-                print('duplicate message')
+                print("duplicate message")
 
 
 def get_telegram_chat_ids():
@@ -79,11 +77,15 @@ def to_telegram(message):
     """
     chat_ids = get_telegram_chat_ids()
     for chat_id in chat_ids:
-        notifier = TelegramNotifier(settings.TELEGRAM_BOT, chat_id=chat_id, parse_mode="HTML")
+        notifier = TelegramNotifier(
+            settings.TELEGRAM_BOT, chat_id=chat_id, parse_mode="HTML"
+        )
         notifier.send(message)
 
 
-def from_google_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
+def from_google_exchange_rates(
+    from_currency="usd", to_currency="try", currency_amount=1
+):
     """
     Fetches exchange rate from Google in any time
 
@@ -113,11 +115,13 @@ def from_open_exchange_rates(from_currency="usd", to_currency="try", currency_am
         request_url = "http://openexchangerates.org/api/latest.json"
         json_response = requests.get(request_url, params=payload)
         response_content = json_response.json()
-        rate = response_content['rates'][to_currency.upper()]
+        rate = response_content["rates"][to_currency.upper()]
     return rate
 
 
-def from_abstractapi_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
+def from_abstractapi_exchange_rates(
+    from_currency="usd", to_currency="try", currency_amount=1
+):
     """
     Fetches exchange rate from AbstractAPI Exchange Rates in 2 days basis
     https://app.abstractapi.com/api/exchange-rates/documentation
@@ -134,7 +138,7 @@ def from_abstractapi_exchange_rates(from_currency="usd", to_currency="try", curr
         payload = {
             "api_key": settings.ABSTRACTAPI_API_KEY,
             "base": from_currency.upper(),
-            "target": to_currency.upper()
+            "target": to_currency.upper(),
         }
         json_response = requests.get(url, params=payload)
         content = json_response.json()
@@ -181,7 +185,9 @@ def _set_exchangerateapi_counter(date, count):
         f.write(f"{date.isoformat()},{count}")
 
 
-def from_exchangerateapi_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
+def from_exchangerateapi_exchange_rates(
+    from_currency="usd", to_currency="try", currency_amount=1
+):
     """
     Fetches exchange rate from exchangerate-api.com with monthly, daily and hourly limit
     Docs: https://www.exchangerate-api.com/docs/overview
@@ -191,7 +197,9 @@ def from_exchangerateapi_exchange_rates(from_currency="usd", to_currency="try", 
     today = now.date()
     last_date, count = _get_exchangerateapi_counter()
 
-    days_in_month = (datetime.date(today.year, today.month % 12 + 1, 1) - datetime.timedelta(days=1)).day
+    days_in_month = (
+        datetime.date(today.year, today.month % 12 + 1, 1) - datetime.timedelta(days=1)
+    ).day
     daily_limit = int(1500 / days_in_month)
     hourly_interval = int(24 / daily_limit) if daily_limit else 24
 
@@ -214,10 +222,7 @@ def from_exchangerateapi_exchange_rates(from_currency="usd", to_currency="try", 
         response = requests.get(url)
         data = response.json()
         if response.status_code == 200 and "conversion_rate" in data:
-            rate = (
-                Decimal(str(data["conversion_rate"])) *
-                Decimal(str(currency_amount))
-            )
+            rate = Decimal(str(data["conversion_rate"])) * Decimal(str(currency_amount))
             _set_exchangerateapi_counter(today, count + 1)
             _set_exchangerateapi_last_request(now)
     except Exception:
@@ -225,7 +230,9 @@ def from_exchangerateapi_exchange_rates(from_currency="usd", to_currency="try", 
     return rate
 
 
-def from_frankfurter_exchange_rates(from_currency="usd", to_currency="try", currency_amount=1):
+def from_frankfurter_exchange_rates(
+    from_currency="usd", to_currency="try", currency_amount=1
+):
     """
     Fetches exchange rate from frankfurter.dev
     Docs: https://www.frankfurter.app/docs
@@ -244,9 +251,9 @@ def from_frankfurter_exchange_rates(from_currency="usd", to_currency="try", curr
         response = requests.get(url)
         data = response.json()
         if (
-            response.status_code == 200 and
-            "rates" in data and
-            to_currency.upper() in data["rates"]
+            response.status_code == 200
+            and "rates" in data
+            and to_currency.upper() in data["rates"]
         ):
             rate = Decimal(str(data["rates"][to_currency.upper()]))
     except Exception:
