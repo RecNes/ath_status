@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from datetime import timedelta
 from decimal import Decimal
 
+from django.db.models import Max
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -9,8 +10,16 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
-from all_time_high.api import from_exchangerateapi_exchange_rates, from_frankfurter_exchange_rates
-from all_time_high.models import ExchangeCurrency, AllTimeHigh, OneUnitDropped, ExchangeRate
+from all_time_high.api import (
+    from_exchangerateapi_exchange_rates,
+    from_frankfurter_exchange_rates,
+)
+from all_time_high.models import (
+    ExchangeCurrency,
+    AllTimeHigh,
+    DailyLowestPrice,
+    ExchangeRate,
+)
 from all_time_high.serializers import ExchangeRateSerializer
 from ath import settings
 
@@ -43,7 +52,9 @@ def get_lowest_rate(latest_rates) -> Decimal:
     return Decimal(rate)
 
 
-def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1) -> object:
+def get_exchange_rate(
+    from_currency="usd", to_currency="try", currency_amount=1
+) -> object:
     """
     Fetch exchange rate and save to DB and return object.
     :param from_currency:
@@ -54,7 +65,7 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
     kwargs = {
         "from_currency": from_currency,
         "to_currency": to_currency,
-        "currency_amount": currency_amount
+        "currency_amount": currency_amount,
     }
 
     latest_rates = {
@@ -82,46 +93,40 @@ def get_exchange_rate(from_currency="usd", to_currency="try", currency_amount=1)
             )
         )
 
-    currency, created = ExchangeCurrency.objects.get_or_create(
+    currency, _ = ExchangeCurrency.objects.get_or_create(
         base=from_currency.lower(),
         target=to_currency.lower(),
     )
     current_exchange_rate = highest_rate.quantize(Decimal("0.00"))
-    exchange_rate_obj = ExchangeRate(
-        exchange_rate=current_exchange_rate
-    )
-    currency.rates.add(exchange_rate_obj, bulk=False)
+    exchange_rate_obj = ExchangeRate(exchange_rate=current_exchange_rate)
+    currency.rates.add(exchange_rate_obj, bulk=False)  # type: ignore
 
     try:
-        all_time_high = currency.alltimehigh
+        all_time_high = currency.alltimehigh  # type: ignore
     except AllTimeHigh.DoesNotExist:
         all_time_high = None
 
     if all_time_high is None or current_exchange_rate > all_time_high.exchange_rate:
-        all_time_high, created = AllTimeHigh.objects.get_or_create(
-            currency=currency
-        )
+        all_time_high, created = AllTimeHigh.objects.get_or_create(currency=currency)
         all_time_high.exchange_rate = current_exchange_rate
         all_time_high.notify = True
         all_time_high.save()
 
     try:
-        one_unit_drop = currency.oneunitdropped
-    except OneUnitDropped.DoesNotExist:
-        one_unit_drop = None
+        daily_lowest = currency.dailylowestprice  # type: ignore
+    except DailyLowestPrice.DoesNotExist:
+        daily_lowest = None
 
-    no_one_unit_drop = one_unit_drop is None or one_unit_drop.exchange_rate <= 0
+    no_daily_lowest = daily_lowest is None or daily_lowest.daily_lowest_price <= 0
     rounded_lowest_rate = lowest_rate.quantize(Decimal("0"))
-    one_unit_dropped = None
-    if one_unit_drop:
-        one_unit_dropped = one_unit_drop.exchange_rate.quantize(Decimal("0")) - rounded_lowest_rate >= 1
-    if no_one_unit_drop or one_unit_dropped:
-        one_unit_drop, created = OneUnitDropped.objects.get_or_create(
+    # Eğer yeni gelen fiyat daha düşükse veya hiç kayıt yoksa güncelle
+    if no_daily_lowest or rounded_lowest_rate < daily_lowest.daily_lowest_price:  # type: ignore
+        daily_lowest, created = DailyLowestPrice.objects.get_or_create(
             currency=currency
         )
-        one_unit_drop.exchange_rate = rounded_lowest_rate
-        one_unit_drop.notify = True
-        one_unit_drop.save()
+        daily_lowest.daily_lowest_price = rounded_lowest_rate
+        daily_lowest.notify = True
+        daily_lowest.save()
 
     return currency
 
@@ -131,7 +136,7 @@ def one_page_view(request):
     template = "one_page_template.html"
     content = {
         "exchange_currencies": ExchangeCurrency.objects.all(),
-        "graph_day_range": settings.GRAPH_DATE_RANGE
+        "graph_day_range": settings.GRAPH_DATE_RANGE,
     }
     return render(request, template, context=content)
 
@@ -144,47 +149,53 @@ class ExchangeGraphView(ListAPIView):
         This view returns the highest rate per day for the selected exchange in the last 30 days.
         """
         from django.db.models import Max
+
         date_range_end = timezone.now()
         date_range_start = date_range_end - timedelta(days=30)
         exchange_currency = ExchangeCurrency.objects.get(pk=self.kwargs["pk"])
         rates = (
-            exchange_currency.rates.filter(
+            exchange_currency.rates.filter(  # type: ignore
                 record_date__gte=date_range_start,
                 record_date__lt=date_range_end,
             )
-            .extra({'day': "date(record_date)"})
-            .values('day')
-            .annotate(max_rate=Max('exchange_rate'))
-            .order_by('day')
+            .extra({"day": "date(record_date)"})
+            .values("day")
+            .annotate(max_rate=Max("exchange_rate"))
+            .order_by("day")
         )
-        return [
-            {'record_date': r['day'], 'exchange_rate': r['max_rate']} for r in rates
-        ]
+        return rates
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        return Response(queryset)
+        response_data = [
+            {"record_date": r["day"], "exchange_rate": r["max_rate"]} for r in queryset
+        ]
+        return Response(response_data)
 
 
 class BulkExchangeGraphView(APIView):
     def get(self, request):
-        from django.db.models import Max
-        date_range_end = timezone.now()
-        date_range_start = date_range_end - timedelta(days=30)
+        date_range_end = (timezone.now()).replace(
+            hour=23, minute=59, second=59, microsecond=999999
+        )
+        date_range_start = (date_range_end - timedelta(days=30)).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
         result = {}
+
         for currency in ExchangeCurrency.objects.all():
             rates = (
-                currency.rates.filter(
+                currency.rates.filter(  # type: ignore
                     record_date__gte=date_range_start,
                     record_date__lt=date_range_end,
                 )
-                .extra({'day': "date(record_date)"})
-                .values('day')
-                .annotate(max_rate=Max('exchange_rate'))
-                .order_by('day')
+                .extra({"day": "date(record_date)"})
+                .values("day")
+                .annotate(max_rate=Max("exchange_rate"))
+                .order_by("day")
             )
             serializer_data = [
-                {'record_date': r['day'], 'exchange_rate': r['max_rate']} for r in rates
+                {"record_date": r["day"], "exchange_rate": r["max_rate"]} for r in rates
             ]
-            result[str(currency.id)] = serializer_data
+            result[str(currency.id)] = serializer_data  # type: ignore
         return Response(result)

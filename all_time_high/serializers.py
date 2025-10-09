@@ -7,6 +7,6 @@ class ExchangeRateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeRate
         fields = (
-            "exchange_rate",
+            "daily_lowest_price",
             "record_date",
         )

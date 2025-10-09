@@ -6,7 +6,7 @@ from django.core.validators import (
     ProhibitNullCharactersValidator,
     DecimalValidator,
     MinValueValidator,
-    EmailValidator
+    EmailValidator,
 )
 from django.db import models
 from django.db.models import UniqueConstraint
@@ -17,24 +17,22 @@ class ExchangeCurrency(models.Model):
     """
     Exchange currency model
     """
+
     base = models.CharField(
         verbose_name=_("Para Birimi 1"),
         max_length=3,
         validators=[
             MaxLengthValidator(3),
             MinLengthValidator(3),
-            ProhibitNullCharactersValidator()
-        ]
+            ProhibitNullCharactersValidator(),
+        ],
     )
     base_symbol = models.CharField(
         verbose_name=_("Para Birimi 1 Sembolü"),
         max_length=3,
         null=True,
         blank=True,
-        validators=[
-            MaxLengthValidator(3),
-            ProhibitNullCharactersValidator()
-        ]
+        validators=[MaxLengthValidator(3), ProhibitNullCharactersValidator()],
     )
     target = models.CharField(
         verbose_name=_("Para Birimi 2"),
@@ -42,18 +40,15 @@ class ExchangeCurrency(models.Model):
         validators=[
             MaxLengthValidator(3),
             MinLengthValidator(3),
-            ProhibitNullCharactersValidator()
-        ]
+            ProhibitNullCharactersValidator(),
+        ],
     )
     target_symbol = models.CharField(
         verbose_name=_("Para Birimi 2 Sembolü"),
         max_length=3,
         null=True,
         blank=True,
-        validators=[
-            MaxLengthValidator(3),
-            ProhibitNullCharactersValidator()
-        ]
+        validators=[MaxLengthValidator(3), ProhibitNullCharactersValidator()],
     )
 
     def __str__(self):
@@ -70,8 +65,7 @@ class ExchangeCurrency(models.Model):
         verbose_name_plural = _("Para Birimleri")
         constraints = [
             UniqueConstraint(
-                fields=["base", "target"],
-                name='unique_exchange_currencies'
+                fields=["base", "target"], name="unique_exchange_currencies"
             )
         ]
         indexes = [
@@ -83,11 +77,12 @@ class ExchangeRate(models.Model):
     """
     Exchange rate model
     """
+
     currency = models.ForeignKey(
         to="ExchangeCurrency",
         verbose_name=_("Kur Birimleri"),
         on_delete=models.CASCADE,
-        related_name="rates"
+        related_name="rates",
     )
     exchange_rate = models.DecimalField(
         verbose_name=_("Güncel Kur"),
@@ -97,23 +92,24 @@ class ExchangeRate(models.Model):
         validators=[
             DecimalValidator(10, 2),
             MinValueValidator(Decimal("0.0")),
-        ]
+        ],
     )
     record_date = models.DateTimeField(
-        verbose_name=_("Kayıt Tarihi"),
-        auto_now_add=True
+        verbose_name=_("Kayıt Tarihi"), auto_now_add=True
     )
 
     def __str__(self):
-        return _("Güncel Kur:") + f"{self.currency} {self.exchange_rate} {self.record_date.strftime('%d/%m/%Y %H:%M:%S %Z')}"
+        return (
+            _("Güncel Kur:")
+            + f"{self.currency} {self.exchange_rate} {self.record_date.strftime('%d/%m/%Y %H:%M:%S %Z')}"
+        )
 
     class Meta:
         verbose_name = _("Kur Oranı")
         verbose_name_plural = _("Kur Oranları")
         constraints = [
             UniqueConstraint(
-                fields=["exchange_rate", "record_date"],
-                name='unique_exchange_rate'
+                fields=["exchange_rate", "record_date"], name="unique_exchange_rate"
             )
         ]
         indexes = [
@@ -126,10 +122,9 @@ class AllTimeHigh(models.Model):
     """
     All-time high model
     """
+
     currency = models.OneToOneField(
-        to="ExchangeCurrency",
-        verbose_name=_("Kur Birimleri"),
-        on_delete=models.CASCADE
+        to="ExchangeCurrency", verbose_name=_("Kur Birimleri"), on_delete=models.CASCADE
     )
     exchange_rate = models.DecimalField(
         verbose_name=_("Tüm Zamanların En Yüksek Kuru"),
@@ -139,103 +134,92 @@ class AllTimeHigh(models.Model):
         validators=[
             DecimalValidator(10, 2),
             MinValueValidator(Decimal("0.0")),
-        ]
+        ],
     )
     update_date = models.DateTimeField(
-        verbose_name=_("Güncelleme Tarihi"),
-        auto_now=True
+        verbose_name=_("Güncelleme Tarihi"), auto_now=True
     )
-    notify = models.BooleanField(
-        verbose_name=_("Bildir"),
-        default=False
-    )
+    notify = models.BooleanField(verbose_name=_("Bildir"), default=False)
     last_notification_date = models.DateTimeField(
-        verbose_name=_("Son Bildirim Zamanı"),
-        null=True,
-        blank=False,
-        editable=False
+        verbose_name=_("Son Bildirim Zamanı"), null=True, blank=False, editable=False
     )
 
     def __str__(self):
-        return _("Tüm Zamanların En Yüksek Kuru: ") + f"{self.currency} = {self.exchange_rate}"
+        return (
+            _("Tüm Zamanların En Yüksek Kuru: ")
+            + f"{self.currency} = {self.exchange_rate}"
+        )
 
     class Meta:
         verbose_name = _("Tüm Zamanların En Yüksek Kuru")
         verbose_name_plural = _("Tüm Zamanların En Yüksek Kuru")
 
 
-class OneUnitDropped(models.Model):
+class DailyLowestPrice(models.Model):
     """
-    One unit dropped model
+    Daily lowest price model (Günlük En Düşük Fiyat)
     """
+
     currency = models.OneToOneField(
-        to="ExchangeCurrency",
-        verbose_name=_("Kur Birimleri"),
-        on_delete=models.CASCADE
+        to="ExchangeCurrency", verbose_name=_("Kur Birimleri"), on_delete=models.CASCADE
     )
-    exchange_rate = models.DecimalField(
-        verbose_name=_("1 Birim Düşüş Kaydı"),
+    daily_lowest_price = models.DecimalField(
+        verbose_name=_("Günlük En Düşük Fiyat"),
         max_digits=10,
         decimal_places=2,
         default=Decimal("0.00"),
         validators=[
             DecimalValidator(10, 2),
             MinValueValidator(Decimal("0.0")),
-        ]
+        ],
     )
     update_date = models.DateTimeField(
-        verbose_name=_("Güncelleme Tarihi"),
-        auto_now=True
+        verbose_name=_("Güncelleme Tarihi"), auto_now=True
     )
-    notify = models.BooleanField(
-        verbose_name=_("Bildir"),
-        default=False
-    )
+    notify = models.BooleanField(verbose_name=_("Bildir"), default=False)
     last_notification_date = models.DateTimeField(
-        verbose_name=_("Son Bildirim Zamanı"),
-        null=True,
-        blank=False,
-        editable=False
+        verbose_name=_("Son Bildirim Zamanı"), null=True, blank=False, editable=False
     )
 
     def __str__(self):
-        return _("Son 1 Birim Düşüş Rakamı: ") + f"{self.currency} = {self.exchange_rate}"
+        return (
+            _("Günlük En Düşük Fiyat: ")
+            + f"{self.currency} = {self.daily_lowest_price}"
+        )
 
     class Meta:
-        verbose_name = _("1 Birim Düşüş")
-        verbose_name_plural = _("1 Birim Düşüş")
+        verbose_name = _("Günlük En Düşük Fiyat")
+        verbose_name_plural = _("Günlük En Düşük Fiyat")
 
 
 class NotificationSetting(models.Model):
     """
     Notification settings model
     """
+
     is_telegram_enabled = models.BooleanField(
-        verbose_name=_("Telegram Bildirimi Açık"),
-        default=True
+        verbose_name=_("Telegram Bildirimi Açık"), default=True
     )
     telegram_notification_interval = models.PositiveSmallIntegerField(
         verbose_name=_("Telegram'a Mesaj Gönderme Sıklığı"),
         help_text=_("Dakika bazında"),
-        default=30
+        default=30,
     )
     is_twitter_enabled = models.BooleanField(
-        verbose_name=_("Twitter Bildirimi Açık"),
-        default=True
+        verbose_name=_("Twitter Bildirimi Açık"), default=True
     )
     twitter_notification_interval = models.PositiveSmallIntegerField(
         verbose_name=_("Twitter'a Mesaj Gönderme Sıklığı"),
         help_text=_("Dakika bazında"),
-        default=30
+        default=30,
     )
     is_email_list_enabled = models.BooleanField(
-        verbose_name=_("Eposta Listesi Bildirimi Açık"),
-        default=True
+        verbose_name=_("Eposta Listesi Bildirimi Açık"), default=True
     )
     email_list_notification_interval = models.PositiveSmallIntegerField(
         verbose_name=_("Eposta Listesi'ne Mesaj Gönderme Sıklığı"),
         help_text=_("Dakika bazında"),
-        default=30
+        default=30,
     )
 
     def __str__(self):
@@ -254,12 +238,11 @@ class NotificationEmails(models.Model):
             EmailValidator(message=_("Geçerli bir eposta adresi girin.")),
             MaxLengthValidator(255),
             MinLengthValidator(5),
-            ProhibitNullCharactersValidator()
-        ]
+            ProhibitNullCharactersValidator(),
+        ],
     )
     register_date = models.DateTimeField(
-        verbose_name=_("Kayıt Tarihi"),
-        auto_now_add=True
+        verbose_name=_("Kayıt Tarihi"), auto_now_add=True
     )
     last_notified_at = models.DateTimeField(
         verbose_name=_("Son Bildirim Gönderme Tarihi"),

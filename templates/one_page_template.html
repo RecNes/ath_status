@@ -230,7 +230,51 @@
         }
     </script>
 </head>
-<body onload="drawCharts();">
+<body onload="drawCharts(); startAutoRefresh();">
+    <script type="text/javascript">
+    function updateNumbers() {
+        fetch(window.location.pathname, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+            .then(response => response.text())
+            .then(html => {
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(html, 'text/html');
+                // Her hücreyi id ile güncelle
+                ['current-rate', 'ath-rate', 'lowest-rate'].forEach(function(prefix) {
+                    let newCells = doc.querySelectorAll('td[id^="' + prefix + '-"]');
+                    newCells.forEach(function(newCell) {
+                        let id = newCell.id;
+                        let oldCell = document.getElementById(id);
+                        if (oldCell) {
+                            oldCell.innerHTML = newCell.innerHTML;
+                            oldCell.title = newCell.title;
+                        }
+                    });
+                });
+            });
+    }
+
+    let autoRefreshInterval = null;
+    let currentIntervalMin = 5;
+
+    function setAutoRefreshInterval(minutes) {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+        }
+        autoRefreshInterval = setInterval(function() {
+            drawCharts();
+            updateNumbers();
+        }, minutes * 60 * 1000);
+        currentIntervalMin = minutes;
+    }
+
+    function startAutoRefresh() {
+        setAutoRefreshInterval(currentIntervalMin);
+        document.getElementById('update-interval').addEventListener('change', function(e) {
+            let min = parseInt(e.target.value);
+            setAutoRefreshInterval(min);
+        });
+    }
+    </script>
 
 <div class="container">
     <div class="centered">
@@ -243,7 +287,7 @@
                         <td>{% trans "Currency" %}</td>
                         <td>{% trans "Current Rate" %}</td>
                         <td>{% trans "ATH Rate" %}</td>
-                        <td>{% trans "One Unit Dropped" %}</td>
+                        <td>{% trans "Günlük En Düşük Fiyat" %}</td>
                         <td>{{ graph_day_range }} {% trans " Days Graph" %}</td>
                     </tr>
                     </thead>
@@ -256,20 +300,20 @@
                             ({{ exchange_currency.base_symbol }})
                             {% endif %}
                         </td>
-                        <td title="{{ exchange_currency.rates.last.record_date }}">
+                        <td id="current-rate-{{ exchange_currency.id }}" title="{{ exchange_currency.rates.last.record_date }}">
                             {{ exchange_currency.rates.last.exchange_rate }}
                             {% if exchange_currency.target_symbol %}
                             {{ exchange_currency.target_symbol }}
                             {% endif %}
                         </td>
-                        <td title="{{ exchange_currency.alltimehigh.update_date }}">
+                        <td id="ath-rate-{{ exchange_currency.id }}" title="{{ exchange_currency.alltimehigh.update_date }}">
                             {{ exchange_currency.alltimehigh.exchange_rate }}
                             {% if exchange_currency.target_symbol %}
                             {{ exchange_currency.target_symbol }}
                             {% endif %}
                         </td>
-                        <td title="{{ exchange_currency.oneunitdropped.update_date }}">
-                            {{ exchange_currency.oneunitdropped.exchange_rate }}
+                        <td id="lowest-rate-{{ exchange_currency.id }}" title="{{ exchange_currency.dailylowestprice.update_date }}">
+                            {{ exchange_currency.dailylowestprice.daily_lowest_price }}
                             {% if exchange_currency.target_symbol %}
                             {{ exchange_currency.target_symbol }}
                             {% endif %}
@@ -317,6 +361,18 @@
                 <p style="width: 300px; margin-left: auto; margin-right: auto;">
                     You can checkout code base from <a href="https://github.com/RecNes/ath_status">GitHub</a> and give a
                     star if you like it.
+                </p>
+                <p style="width: 300px; margin-left: auto; margin-right: auto;">
+                    <br><br>
+                    <div style="width: 300px; text-align: right; margin-bottom: 8px;">
+                        <label for="update-interval" style="color: #ffffffff; font-weight: bold;">Update Interval: </label>
+                        <select id="update-interval" style="font-size: 1em; padding: 2px 8px; border-radius: 4px;">
+                            <option value="2">2 min</option>
+                            <option value="5" selected>5 min</option>
+                            <option value="10">10 min</option>
+                            <option value="30">30 min</option>
+                        </select>
+                    </div>
                 </p>
             </div>
         </div>
